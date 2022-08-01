@@ -1,5 +1,5 @@
-""" Functions to crawl and process a
-Wikimedia stub-meta-history XML dump"""
+""" Functions to crawl and process a Wikimedia
+stub-meta-history XML dump into CSV files"""
 
 from base64 import b64encode, b64decode
 from collections import defaultdict
@@ -31,27 +31,24 @@ class Revision:
             self.parent.log(message)
 
     def add_id(self, revid):
-        """Add ID to rev.
+        """Add revid to Revision.
         Complain if it already has one."""
         if self.revid is None:
             self.revid = revid
         else:
-            message = "Double revids at {}: {} {}"
-            message = message.format(self.linecount,
-                                     self.revid, revid)
+            m = "Double revids{}: {} and {}"
+            message = m.format(self.revid, revid)
             self.log(message)
 
     def add_month(self, timestamp):
-        """Add month to rev from timestamp.
+        """Add month to Revision.
         Complain if it already has one."""
         month = timestamp[:7]
         if self.month is None:
             self.month = month
         else:
-            message = "Double timestamps at line {} " \
-                      "for revision {}: {}"
-            message = message.format(self.linecount,
-                                     self.revid, timestamp)
+            m = "Double timestamps for revision {}: {}"
+            message = m.format(self.revid, timestamp)
             self.log(message)
 
 
@@ -75,15 +72,14 @@ class Page:
         if self.parent is None:
             print(message)
         else:
-            message += " at line " + str(self.parent.linecount)
             self.parent.log(message)
 
     def to_csv(self):
         """Generate single CSV line for page in format:
         (page_id, namespace, encoded_page_name, is_redirect)"""
         if not self.name:
-            message = "Error! Page ID {} closed without name"
-            message = message.format(self.page_id)
+            m = "Error! Page ID {} closed without name"
+            message = m.format(self.page_id)
             self.log(message)
             return
         name = self.name.encode("utf-8")
@@ -110,8 +106,8 @@ class Page:
         duplicate of a previous revision of
         the same page. Not yet used."""
         if not revision.sha1:
-            message = "Missing SHA1 for revision {}"
-            message = message.format(revision.revid)
+            m = "Missing SHA1 for revision {}"
+            message = m.format(revision.revid)
             self.log(message)
         if revision.sha1 in self.hashes:
             return True
@@ -124,23 +120,26 @@ class Page:
         if self.page_id is None:
             self.page_id = page_id
         else:
-            message = "Double page_ids: {} and {}"
-            message = message.format(self.page_id, page_id)
+            m = "Double page_ids: {} and {}"
+            message = m.format(self.page_id, page_id)
             self.log(message)
 
     def add_user(self, user, revision):
-        """Add user to user_ids of page, and
-        increment relevant user_months value"""
-        user_id = user.user_id
+        """Add user to Page's user_ids and 'users' dict,
+        if not present, and increment user_months"""
+        if user.ip:
+            user_id = "IP:" + user.ip
+        else:
+            user_id = user.user_id
         if user_id not in self.user_ids:
             self.user_ids.add(user_id)
             self.users[user_id] = user
         month = revision.month
-        key = (user_id, month)
+        key = (month, user_id)  # month-first for sorting
         self.user_months[key] += 1
 
     def get_user_page_months(self):
-        """Output a list of CSV lines in format:
+        """Return a list of CSV lines in this format:
         user_id,page_id,namespace,is_redirect,month,count
         """
         if not self.user_months:
@@ -148,12 +147,17 @@ class Page:
             message = m.format(self.page_id)
             self.log(message)
         user_months_by_year = defaultdict(list)
-        for user_id, month in self.user_months.keys():
-            count = self.user_months[(user_id, month)]
+        user_months = self.user_months.keys()
+        for month, user_id in user_months:
+            count = self.user_months[(month, user_id)]
             year = ""
             if self.parent:
                 if self.parent.split_by_year:
                     year = month[:4]
+            if user_id.startswith("IP:"):
+                if self.parent is not None:
+                    ip = user_id[3:]
+                    user_id = self.parent.ip2id[ip]
             pieces = (user_id, self.page_id, self.namespace,
                       str(int(self.is_redirect)), month, str(count))
             new_line = ",".join(pieces)
@@ -177,19 +181,17 @@ class User:
         if self.parent is None:
             print(message)
         else:
-            linecount = self.parent.linecount
-            message += " at line " + str(linecount)
             self.parent.log(message)
 
     def to_csv(self):
         """Generate CSV line for user with fields
-        (user_id,encoded_name) using base-64 encoding.
-        For IP users, user_id is a sequential identifier
-        and encoded_name is the existing SHA1 hash of the
-        IP address."""
+        (user_id,encoded_name). Encode name using 
+        base-64 encoding. For IP users, user_id is 
+        a sequential identifier and encoded_name is 
+        the existing SHA1 hash of the IP address."""
         if not self.name:
-            message = "User ID {} has no name"
-            message = message.format(self.user_id)
+            m = "User ID {} has no name"
+            message = m.format(self.user_id)
             self.log(message)
             return
         if self.ip:
@@ -217,9 +219,8 @@ class User:
         if self.name is None:
             self.name = name
         else:
-            message = "Warning: two user names at {}: {}; {}"
-            message = message.format(self.parent.linecount,
-                                     self.name, name)
+            m = "Warning: two user names: {}; {}"
+            message = m.format(self.name, name)
             self.log(message)
 
     def add_id(self, user_id):
@@ -228,8 +229,8 @@ class User:
         if self.user_id is None:
             self.user_id = user_id
         else:
-            message = "Double user_ids at {}: {} {}"
-            message = message.format(self.parent.linecount, self.user_id, user_id)
+            m = "Double user_ids: {} {}"
+            message = m.format(self.user_id, user_id)
             self.log(message)
 
 
@@ -253,7 +254,7 @@ class Crawler:
         self.handle = None
         self.user_ids = set()
         self.ips = set()
-        self.ip_count = 0
+        self.ip_count = -1  # start from 0 not 1
         self.ip2id = {}
         self.loghandle = None
         self.maxlines = None
@@ -317,8 +318,9 @@ class Crawler:
         """Write message to log, and optionally
         also to console."""
         if not message:
-            message = "Error! Blank message at line" + \
-                      str(self.linecount)
+            m = "Error! Blank message"
+            message = m.format(self.linecount)
+        message += " at line {}".format(self.linecount)
         if self.log_to_console:
             print(message)
         if self.loghandle is not None:
@@ -330,34 +332,35 @@ class Crawler:
         try:
             content = text.split(">", 1)[1]
         except IndexError:
-            self.log("Problem with one-line tag at line {}: {}"
-                     .format(self.linecount, text))
+            m = "Problem with one-line tag: {}"
+            message = m.format(text)
+            self.log(message)
             return ""
         tag_pieces = content.split("<", 1)
         if len(tag_pieces) != 2:
-            self.log("Problem with one-line tag at line {}: {}"
-                     .format(self.linecount, text))
+            m = "Problem with one-line tag: {}"
+            message = m.format(text)
+            self.log(message)
             return ""
         tag_content = tag_pieces[0]
         tag_content = tag_content.strip()
         return tag_content
 
     def reset_page(self):
-        """Write data and clean up after </page>"""
+        """Write data, add new user ids, and clean up.
+        To be called upon reaching </page>"""
         if self.current_page is not None:
             if self.current_user is not None:
-                m = "Warning: page ended without closing user "\
-                    "at {}, page id {}, user id {}"
-                message = m.format(self.linecount,
-                                   self.current_page.page_id,
+                m = "Warning: page {} ended without closing user {}"
+                message = m.format(self.current_page.page_id,
                                    self.current_user.user_id)
                 self.log(message)
             if self.current_revision is not None:
-                message = "Warning: page ended without closing " \
-                          "revision at {}, page id {}, revision id {}"
-                self.log(message.format(self.linecount,
-                                        self.current_page.page_id,
-                                        self.current_revision.revid))
+                m = "Warning: page {} ended without closing rev {}"
+                message = m.format(self.current_page.page_id,
+                                   self.current_revision.revid)
+                self.log(message)
+            self.add_users()
             self.write_current_page_months()
             self.write_current_page()
         self.current_page = None
@@ -370,45 +373,43 @@ class Crawler:
         if self.current_page is not None:
             if self.current_revision is not None:
                 if self.current_user is None:
-                    m = "Warning: revision {} has no user at {}"
-                    message = m.format(self.current_revision.revid,
-                                       self.linecount)
+                    m = "Warning: revision {} has no user"
+                    message = m.format(self.current_revision.revid)
                     self.log(message)
                 else:
-                    self.add_user()
+                    rev = self.current_revision
+                    user = self.current_user
+                    self.current_page.add_user(user, rev)
         self.revcount += 1
         if not self.revcount % 5000000:
             now = datetime.today().isoformat()
-            message = "Reached revision {} at line {} at {}"
-            message = message.format(self.revcount, self.linecount, now)
+            m = "Reached revision {} at {}"
+            message = m.format(self.revcount, now)
             self.log(message)
         self.current_revision = None
         self.current_user = None
 
     def get_id_and_name_for_ip(self, ip):
         """For new unique IP address, return a sequential
-        ID and an SHA1 hash to use as a user name."""
+        ID and an SHA1 hash to use as a user name.
+        Called only from write_user() after filtering
+        out any non-new IPs."""
+        self.ip_count += 1
         user_id = "IP:{}".format(self.ip_count)
         self.ip2id[ip] = user_id
         hashed_ip = sha1(ip.encode("utf-8"))
         user_name = hashed_ip.hexdigest()
         return user_id, user_name
 
-    def add_user(self):
-        """Add user info to self and current_page.
+    def add_users(self):
+        """Add users from current_page.
         If user already there, do nothing."""
-        this_user = self.current_user
-        if this_user.ip:
-            if this_user.is_new:
-                self.ips.add(this_user.ip)
-                self.ip_count += 1
-        this_id = this_user.user_id
-        if this_id not in self.user_ids:
-            self.user_ids.add(this_id)
-            self.write_current_user()
-        this_rev = self.current_revision
-        self.current_page.add_user(this_user, this_rev)
-        self.current_user = None
+        for user in self.current_page.users.values():
+            if not user.is_new:
+                continue
+            if not user.ip:
+                self.user_ids.add(user.user_id)
+            self.write_user(user)
 
     def get_output(self, output_name, year=None):
         """Given an output name such as 'users_output',
@@ -420,7 +421,9 @@ class Crawler:
         output = self.active_outputs[output_filename]
         return output
 
-    def write_output_line(self, output_name, line,
+    def write_output_line(self, 
+                          output_name, 
+                          line,
                           year=None):
         """Write provided line to specified output."""
         output_file = self.get_output(output_name, year=year)
@@ -428,15 +431,20 @@ class Crawler:
             line += "\n"
         output_file.write(line)
 
-    def write_current_user(self):
+    def write_user(self, user):
         """Write user info to users_output as CSV
         in format: (user_id, encoded_name)"""
-        csv = self.current_user.to_csv()
+        if user.ip:
+            if user.is_new:
+                user_id, name = self.get_id_and_name_for_ip(user.ip)
+                user.user_id = user_id
+                user.add_name(name)
+                self.ips.add(user.ip)
+        csv = user.to_csv()
         if csv:
             self.write_output_line("users_output", csv)
         else:
-            message = "Warning: blank user CSV at line: " + \
-                      str(self.linecount)
+            message = "Warning: blank user CSV" 
             self.log(message)
 
     def write_current_page_months(self):
@@ -445,15 +453,15 @@ class Crawler:
         annual output file."""
         lines_by_year = self.current_page.get_user_page_months()
         if not lines_by_year:
-            m = "Warning: No user_page_months for page ID {} at line {}"
-            message = m.format(self.current_page.page_id, self.linecount)
+            m = "Warning: No user_page_months for page ID {}"
+            message = m.format(self.current_page.page_id)
             self.log(message)
             return
         for year, csv_lines in lines_by_year.items():
             if len(set([x.count(",") for x in csv_lines])) != 1:
                 # there should be no extra or missing commas
-                message = "Problem with user-page-months CSV at {}:\n{}" \
-                    .format(self.linecount, csv_lines)
+                m = "Problem with user-page-months CSV: \n{}\n"
+                message = m.format(csv_lines)
                 self.log(message)
                 return
             csv = "\n".join(csv_lines)
@@ -465,11 +473,39 @@ class Crawler:
         output file."""
         page_csv = self.current_page.to_csv()
         if page_csv is None:
-            message = "Warning: blank page CSV at line {}" \
-                .format(self.linecount)
+            message = "Warning: blank page CSV"
             self.log(message)
         else:
             self.write_output_line("pages_output", page_csv)
+
+    def process_id_tag(self, this_id):
+        """Process an ID, which may be of the current
+        page, user, or revision."""
+        if self.current_user:
+            self.current_user.add_id(this_id)
+            if this_id not in self.user_ids:
+                self.current_user.is_new = True
+        elif self.current_revision:
+            self.current_revision.add_id(this_id)
+        elif self.current_page:
+            self.current_page.add_id(this_id)
+        else:
+            message = "ID out of place"
+            self.log(message)
+
+    def process_ip_tag(self, ip):
+        """Process an <ip> tag"""
+        self.current_user.ip = ip
+        if ip not in self.ips:
+            self.current_user.is_new = True
+    
+    def create_deleted_user(self):
+        """Create dummy user as current_user
+        for revisions with attribution removed."""
+        user = User()
+        user.user_id = "0"
+        user.name = "[Attribution Removed]"
+        self.current_user = user
 
     def process_line(self, line):
         """Process a single line from
@@ -482,21 +518,16 @@ class Crawler:
         if line[1] == "/":
             if line.startswith("</revision>"):
                 self.reset_revision()
-            if line.startswith("</page>"):
+            elif line.startswith("</page>"):
                 self.reset_page()
         else:
             tagname = line[1:line.find(">")]
             if tagname == "page":
                 self.current_page = Page(crawler=self)
             elif self.current_page is not None:
-                if tagname == "id":
+                if tagname == "id":  # most common tag
                     this_id = self.get_oneline_tag(line)
-                    if self.current_user:
-                        self.current_user.add_id(this_id)
-                    elif self.current_revision:
-                        self.current_revision.add_id(this_id)
-                    elif self.current_page:
-                        self.current_page.add_id(this_id)
+                    self.process_id_tag(this_id)
                 elif tagname == "revision":
                     self.current_revision = Revision(crawler=self)
                 elif tagname == "contributor":
@@ -506,14 +537,7 @@ class Crawler:
                     self.current_user.add_name(username)
                 elif tagname == "ip":
                     ip = self.get_oneline_tag(line)
-                    self.current_user.ip = ip
-                    if ip in self.ips:
-                        user_id = self.ip2id[ip]
-                    else:
-                        user_id, username = self.get_id_and_name_for_ip(ip)
-                        self.current_user.add_name(username)
-                        self.current_user.is_new = True
-                    self.current_user.user_id = user_id
+                    self.process_ip_tag(ip)
                 elif tagname == "timestamp":
                     timestamp = self.get_oneline_tag(line)
                     self.current_revision.add_month(timestamp)
@@ -536,14 +560,6 @@ class Crawler:
                     self.create_deleted_user()
                     self.deleted_user_edits += 1
 
-    def create_deleted_user(self):
-        """Create dummy user as current_user
-        for revisions with attribution removed."""
-        user = User()
-        user.user_id = "0"
-        user.name = "[Attribution Removed]"
-        self.current_user = user
-
     def process_file(self):
         """iterate through the open file at self.handle"""
         if not hasattr(self.handle, "closed"):
@@ -561,8 +577,7 @@ class Crawler:
     def end_crawl(self):
         """Close all open files at end of crawl."""
         now = datetime.today().isoformat()
-        message = "Ended run on line {} at {}" \
-            .format(self.linecount, now)
+        message = "Ended run at {}".format(now)
         self.log(message)
         self.close_outputs()
         self.loghandle.close()
@@ -591,15 +606,15 @@ class Crawler:
             self.process_file()
         except KeyboardInterrupt:
             now = datetime.today().isoformat()
-            m = "Terminating on keyboard interrupt "\
-                "at line {} at {}"
-            message = m.format(self.linecount, now)
+            m = "Terminating on keyboard interrupt at {}"
+            message = m.format(now)
             self.log(message)
         self.end_crawl()
 
 
 def get_output_filename(output_name, year=None):
-    # Return CSV filename
+    """For a given output of Crawler,
+    return CSV filename"""
     filename = ""
     if year is not None:
         if output_name == "user_page_months_output":
