@@ -71,6 +71,9 @@ class Picker:
         else:
             self.bots = set(bots)
         self.reset_counts()
+            
+    def reset_counts(self):
+        """Set all counts to default values"""
         self.inc = 0
         self.user_ids = set()
         self.ips = set()
@@ -153,6 +156,18 @@ class Picker:
             self.basic_counts[path] = result
         return self.user_edits
 
+    def get_pages_for_month(self, filepath, month):
+        """Given a single filepath, return a set of
+        all page IDs edited in a given month"""
+        page_ids = set()
+        for line in open(filepath):
+            lineobj = self.process_line(line)
+            if not self.line_is_ok(lineobj):
+                continue
+            if lineobj.month == month:
+                page_ids.add(lineobj.page_id)
+        return page_ids
+
     def get_basic_counts(self,
                          filepaths=None,
                          maxlines=None,
@@ -195,6 +210,7 @@ class Picker:
         if self.by_month:
             result = {}
             for month, picker in self.months.items():
+                picker.bots = self.bots
                 monthly_result = picker.get_results()
                 result[month] = monthly_result
         else:
@@ -250,8 +266,7 @@ class Picker:
             return False
         return True
 
-    @staticmethod
-    def process_line(line):
+    def process_line(self, line):
         """Process line into object and send for
         further processing."""
         lineobj = UserPageMonthLine()
