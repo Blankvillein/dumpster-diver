@@ -30,6 +30,255 @@ class UserPageMonthLine:
             setattr(self, attrname, val)
 
 
+class BandInfo:
+    """Stores data for a user or article band,
+    consisting of "name", "members", and 
+    "edit_count". This can be used to store
+    information about, for example, the activity
+    of a user band defined in one year for a
+    different year."""
+    
+    def __init__(self, name=""):
+        self.name = name
+        self.members = set()
+        self.edit_count = 0
+
+    def tuplify(self):
+        BandData = namedtuple("BandData", 
+                              ["name", "member_count", "edit_count"])
+        output = BandData(self.name, len(self.members), 
+                          self.edit_count)
+        return output
+
+
+class Picker:
+    """Sifts through CSV files to pick out
+    desired data."""
+
+    def __init__(self,
+                 filepaths=None,
+                 namespaces=None,
+                 bots=None):
+        if filepaths is None:
+            self.filepaths = []
+        elif type(filepaths) is str:
+            raise ValueError
+        else:
+            self.filepaths = filepaths
+        self.namespaces = namespaces
+        if bots is None:
+            self.bots = set()
+        else:
+            self.bots = set(bots)
+        self.reset_counts()
+        self.inc = 0
+        self.user_ids = set()
+        self.ips = set()
+        self.page_ids = set()
+        self.redirect_ids = set()
+        self.num_user_upm = 0
+        self.num_ip_upm = 0
+        self.num_user_edits = 0
+        self.num_ip_edits = 0
+        self.basic_counts = {}
+        self.by_month = False
+        self.months = None
+        self.by_user_band = False
+        self.user_edits = None
+        # bands by log 10 less 1,
+        # aka number of digits:
+        self.bands = [1, 2, 3, 4, None]
+        self.banded_users = defaultdict(int)
+
+    def get_edit_band(self, editcount, base=10):
+        """Given an edit count, return the corresponding
+        edit band. Each band consists of numbers less than
+        the given power of the base number (which in the
+        default base-10 case corresponds to the number of 
+        digits.) The maximum edit band is None, whether 
+        specified or not.
+        """
+        if editcount < 1:
+            print("Warning! Bad edit count {}"
+                  .format(editcount))
+        for band in self.bands:
+            if band is None:
+                return None
+            elif editcount < base ** band:
+                return band
+        print("Warning! No band specified for edit count\
+               {}".format(editcount))
+        return None
+        
+    def get_monthly_edits_by_band(self,
+                                  filepath=None,
+                                  banded_users=None):
+        """Given a {(user_id, band)} dict,
+        calculate monthly users and edits 
+        from provided file."""
+        if banded_users is None:
+            if self.banded_users is None:
+                raise ValueError
+            banded_users = self.banded_users
+        user_ids = set(banded_users.keys())
+        banded_data = defaultdict(BandInfo)
+        for line in open(filepath):
+            lineobj = self.process_line(line)
+            if not self.line_is_ok(lineobj):
+                continue
+            if lineobj.user_id in user_ids:
+                month = lineobj.month
+                band = banded_users[lineobj.user_id]
+                band_data = banded_data[(month, band)]
+                edits = int(lineobj.month_edits)
+                band_data.edit_count += edits
+                band_data.members.add(lineobj.user_id)
+        final_data = {}  # use a standard dict to return data
+        for band_label, band_data in banded_data.items():
+            band_data.name = band_label
+            final_data[band_label] = band_data.tuplify()[1:]
+        return final_data
+
+    def get_user_edits(self,
+                       filepaths=None):
+        """Given a list of filepaths, return a
+        {(userid, editcount)} dict."""
+        self.user_edits = defaultdict(int)
+        if filepaths is None:
+            filepaths = self.filepaths
+        for path in filepaths:
+            print("Processing {}".format(path))
+            handle = open(path, encoding="utf-8")
+            result = self.process_file(handle)
+            self.basic_counts[path] = result
+        return self.user_edits
+
+    def get_basic_counts(self,
+                         filepaths=None,
+                         maxlines=None,
+                         by_month=False):
+        """Given filepaths to user-page-month CSV
+        files, return a {filepath, <stats>} dict.
+        If namespaces provided, collect only for those
+        namespaces. If bots provided, exclude bots.
+        Bots must be set of bot IDs (not usernames)."""
+        self.basic_counts = {}
+        self.by_month = by_month
+        if self.by_month:
+            self.months = defaultdict(Picker)
+        if filepaths is None:
+            filepaths = self.filepaths
+        for path in filepaths:
+            print("Processing {}".format(path))
+            handle = open(path, encoding="utf-8")
+            result = self.process_file(handle,
+                                       maxlines=maxlines)
+            if self.by_month:  # avoid dict of dicts
+                result = [(x[0], x[1].get_results()) for x in
+                          self.months.items()]
+            self.basic_counts[path] = result
+        return self.basic_counts
+
+    def process_file(self, open_file, maxlines=None):
+        """Process provided open_file up to maxlines,
+        and return resulting stats as namedtuple."""
+        self.inc = -1
+        for line in open_file:
+            self.inc += 1
+            if not line:
+                continue
+            if maxlines is not None:
+                if self.inc > maxlines:
+                    break
+            lineobj = self.process_line(line)
+            self.process_lineobj(lineobj)
+        if self.by_month:
+            result = {}
+            for month, picker in self.months.items():
+                monthly_result = picker.get_results()
+                result[month] = monthly_result
+        else:
+            result = self.get_results()
+        return result
+
+    def get_results(self):
+        Results = namedtuple("Results",
+                             ["num_users", "num_ips",
+                              "num_pages", "num_redirects",
+                              "num_user_upm", "num_ip_upm",
+                              "num_user_edits", "num_ip_edits"])
+        result = Results(num_users=len(self.user_ids),
+                         num_ips=len(self.ips),
+                         num_pages=len(self.page_ids),
+                         num_redirects=len(self.redirect_ids),
+                         num_user_upm=self.num_user_upm,
+                         num_ip_upm=self.num_ip_upm,
+                         num_user_edits=self.num_user_edits,
+                         num_ip_edits=self.num_ip_edits)
+        return result
+
+    def process_ip(self, lineobj):
+        """Increment counts for IP and add IP to
+        self.ips"""
+        self.num_ip_upm += 1
+        self.num_ip_edits += int(lineobj.month_edits)
+        self.ips.add(lineobj.user_id)
+
+    def process_user(self, lineobj):
+        """Increment counts for user and add user to
+        self.user_ids. If user_edits is set, update."""
+        self.num_user_upm += 1
+        editcount = int(lineobj.month_edits)
+        self.num_user_edits += editcount
+        user = lineobj.user_id
+        self.user_ids.add(user)
+        if self.user_edits is not None:
+            self.user_edits[user] += editcount
+
+    def line_is_ok(self, lineobj):
+        """Return True if line is OK to process,
+        otherwise False."""
+        if self.namespaces:
+            if lineobj.namespace not in self.namespaces:
+                return False
+        if lineobj.user_id in self.bots:
+            return False
+        if lineobj.namespace is None:
+            return False
+        if lineobj.month_edits is None:
+            print("Bad line at {}! {}".format(self.inc, lineobj))
+            return False
+        return True
+
+    @staticmethod
+    def process_line(line):
+        """Process line into object and send for
+        further processing."""
+        lineobj = UserPageMonthLine()
+        lineobj.from_csv(line)
+        return lineobj
+
+    def process_lineobj(self, lineobj):
+        """Increment relevant stats for line"""
+        if self.by_month:
+            picker = self.months[lineobj.month]
+            picker.process_lineobj(lineobj)
+        if not self.line_is_ok(lineobj):
+            return
+        if lineobj.user_id.startswith("IP:"):
+            self.process_ip(lineobj)
+        else:  # non-bot registered user
+            self.process_user(lineobj)
+        page = lineobj.page_id
+        if lineobj.page_is_redirect == "0":
+            self.page_ids.add(page)
+        elif lineobj.page_is_redirect == "1":
+            self.redirect_ids.add(page)
+        else:
+            m = "Bad value for is_redirect:" + lineobj.text
+            print(m)
+
+
 def get_bot_ids(botpath, userpath):
     """Given a file with bot usernames each on one
     line, and another file with mappings between
@@ -57,153 +306,8 @@ def get_bot_ids(botpath, userpath):
     return bot_ids
 
 
-class Picker:
-    """Sifts through CSV files to pick out
-    desired data."""
-
-    def __init__(self,
-                 filepaths=None,
-                 namespaces=None,
-                 bots=None):
-        if filepaths is None:
-            self.filepaths = []
-        elif type(filepaths) is str:
-            raise ValueError
-        else:
-            self.filepaths = filepaths
-        self.namespaces = namespaces
-        if bots is None:
-            self.bots = set()
-        else:
-            self.bots = set(bots)
-        self.inc = 0
-        self.user_ids = set()
-        self.ips = set()
-        self.page_ids = set()
-        self.redirect_ids = set()
-        self.num_user_upm = 0
-        self.num_ip_upm = 0
-        self.num_user_edits = 0
-        self.num_ip_edits = 0
-        self.output = {}
-        self.by_month = False
-        self.months = None
-
-    def get_basic_counts(self,
-                         filepaths=None,
-                         maxlines=None,
-                         by_month=False):
-        """Given filepaths to user-page-month CSV
-        files, return a {filepath, <stats>} dict.
-        If namespaces are provided, collect only for those
-        namespaces. If bots are provided, exclude bots.
-        Bots must be set of bot IDs (not usernames)."""
-        self.output = {}
-        self.by_month = by_month
-        if self.by_month:
-            self.months = defaultdict(Picker)
-        if filepaths is None:
-            filepaths = self.filepaths
-        for path in filepaths:
-            print("Processing {}".format(path))
-            handle = open(path, encoding="utf-8")
-            result = self.process_file(handle, maxlines=maxlines)
-            if self.by_month:  # avoid dict of dicts
-                result = [x for x in self.months.items()]
-            self.output[path] = result
-        return self.output
-
-    def process_file(self, open_file, maxlines=None):
-        """Process provided open_file up to maxlines,
-        and return resulting stats as namedtuple."""
-        self.inc = -1
-        for line in open_file:
-            self.inc += 1
-            if not line:
-                continue
-            if maxlines is not None:
-                if self.inc > maxlines:
-                    break
-            self.process_line(line)
-        if self.by_month:
-            result = {}
-            for month, picker in self.months.items():
-                monthly_result = picker.get_results()
-                result[month] = monthly_result
-        else:
-            result = self.get_results()
-        return result
-
-    def get_results(self):
-        Results = namedtuple("Results",
-                             ["num_users", "num_ips",
-                              "num_pages", "num_redirects",
-                              "num_user_upm", "num_ip_upm",
-                              "num_user_edits", "num_ip_edits"])
-        result = Results(num_users=len(self.user_ids),
-                         num_ips=len(self.ips),
-                         num_pages=len(self.page_ids),
-                         num_redirects=len(self.redirect_ids),
-                         num_user_upm=self.num_user_upm,
-                         num_ip_upm=self.num_ip_upm,
-                         num_user_edits=self.num_user_edits,
-                         num_ip_edits=self.num_ip_edits)
-        return result
-
-    def process_ip(self, lineobj):
-        self.num_ip_upm += 1
-        self.num_ip_edits += int(lineobj.month_edits)
-        self.ips.add(lineobj.user_id)
-
-    def process_user(self, lineobj):
-        self.num_user_upm += 1
-        self.num_user_edits += int(lineobj.month_edits)
-        user = lineobj.user_id
-        self.user_ids.add(user)
-
-    def line_is_ok(self, lineobj):
-        if self.namespaces:
-            if lineobj.namespace not in self.namespaces:
-                return False
-        if lineobj.user_id in self.bots:
-            return False
-        if lineobj.namespace is None:
-            return False
-        if lineobj.month_edits is None:
-            print("Bad line at {}! {}".format(self.inc, lineobj))
-            return False
-        return True
-
-    def process_line(self, line):
-        """Process line into object and send for
-        further processing."""
-        lineobj = UserPageMonthLine()
-        lineobj.from_csv(line)
-        self.process_lineobj(lineobj)
-
-    def process_lineobj(self, lineobj):
-        """Increment relevant stats for line"""
-        if self.by_month:
-            picker = self.months[lineobj.month]
-            picker.process_lineobj(lineobj)
-        if not self.line_is_ok(lineobj):
-            return
-        if lineobj.user_id.startswith("IP:"):
-            self.process_ip(lineobj)
-        else:  # non-bot registered user
-            self.process_user(lineobj)
-        page = lineobj.page_id
-        if lineobj.page_is_redirect == "0":
-            self.page_ids.add(page)
-        elif lineobj.page_is_redirect == "1":
-            self.redirect_ids.add(page)
-        else:
-            m = "Bad value for is_redirect:" + lineobj.text
-            print(m)
-
-
 def fields2line(fields):
-    """Create CSV line of 'fields', ending
+    """Create CSV line from 'fields', ending
     with newline."""
     fields = [x.strip().replace(",", "\\,")
               for x in fields]
