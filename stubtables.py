@@ -5,8 +5,9 @@ from collections import defaultdict, namedtuple
 from datetime import date, timedelta
 
 
-def make_user_table_by_year(yearbands, title="EN Wikipedians by year "
-                            "who made ''n'' edits in their first year"):
+def make_user_table_by_year(yearbands,
+                            title="EN Wikipedians by year who made "
+                                  "''n'' edits in their first year"):
     """Generate wikitable of user-year data.
 
     Parameters
@@ -24,8 +25,6 @@ def make_user_table_by_year(yearbands, title="EN Wikipedians by year "
     If neither 'users' nor 'yearbands' is provided,
     a blank string is returned.
     """
-    if yearbands is None:
-        return ""
     bands = sorted(yearbands.keys())
     table = "{|class=wikitable"
     table += """
@@ -50,7 +49,8 @@ def make_user_table_by_year(yearbands, title="EN Wikipedians by year "
     return table
 
 
-def make_page_table_by_year(yearbands, title="Pages by year"):
+def make_page_table_by_year(yearbands,
+                            title="Pages by year"):
     """Generate wikitable of user-year data.
 
     Parameters
@@ -65,8 +65,6 @@ def make_page_table_by_year(yearbands, title="Pages by year"):
     str
     Returns wikitable with user-bands as columns
     and years as rows.
-    If neither 'users' nor 'yearbands' is provided,
-    a blank string is returned.
     """
     bands = sorted(yearbands.keys())
     table = "{|class=wikitable"
@@ -168,7 +166,8 @@ def get_y2_users_by_y1_edits(users, stop=None, calendar_year="2021"):
 
 def get_banded_count(count):
     """
-    Returns a band based on a number (of edits)
+    Returns a band based on a number (typically a
+    number of edits)
         Parameters
         ----------
         count: int
@@ -260,10 +259,103 @@ def make_combo_table(userbands, editbands,
                 cell_user_count = 0
                 cell_edit_count = 0
             cell_content = str(cell_user_count) + \
-                " users{{br}}making{{br}}" + str(cell_edit_count) +\
+                " users{{br}}making{{br}}" + str(cell_edit_count) + \
                 " edits"
             cell = "|{}\n".format(cell_content)
             table += cell
         table += "|-\n"
     table += "|}"
+    return table
+
+
+def tuples2table(data, title=""):
+    """Given {(row_label, <stats>)} dict of
+    namedtuples, return wikitable with field
+    names as columns.
+
+
+    Parameters
+    ----------
+    data: dict
+        Dict of (label, namedtuple) pairs
+    title: str
+        Desired title of table
+
+    Returns
+    ----------
+    str
+    Returns wikitable of provided stats
+    """
+    headers = list(data.items())[0]._fields
+    first_row_content = [""] + list(headers)
+    table = "{|class=wikitable"
+    table += """
+|+{}
+|-
+""".format(title)
+    for label in first_row_content:
+        table += "!{}\n".format(label)
+    for label, stats in data:
+        table += "!{}\n".format(label)
+        for s in stats:
+            table += "|{}\n".format(s)
+        table += "|-"
+    table += "|}"
+    return table
+
+
+def double_tuples_to_table(tuple_list,
+                           title="",
+                           members_name="users"):
+    """Given a list of tuples in format:
+    ((y_label, x_label),(member_count, edit_count)),
+    where y_label is typically a month or year,
+    generate wikitable with member and edit counts,
+    percentages and percentage changes in each cell."""
+    y_labels = [str(x[0][0]) for x in tuple_list]
+    y_labels = sorted(set(y_labels))
+    x_labels = [str(x[0][1]) for x in tuple_list]
+    x_labels = sorted(set(x_labels))
+    tuple_list.sort(key=lambda x: str(x))
+    headers = x_labels
+    first_row_content = [""] + headers
+    table = "{|class=wikitable"
+    table += """
+|+{}
+|-
+""".format(title)
+    for label in first_row_content:
+        table += "!{}\n".format(label)
+    y_done = set()
+    edit_totals = dict([(x, sum([y[1][1] for y in
+                                 tuple_list if y[0][0] == x]))
+                        for x in y_labels])
+    prev_edits = {}
+    for labels, vals in tuple_list:
+        members, edits = vals
+        y_label, x_label = labels
+        if y_label not in y_done:
+            table += "|-\n!{}\n".format(y_label)
+        y_done.add(y_label)
+        cell = "|{} {}\n{} edits\n"
+        cell_content = cell.format(members, members_name,
+                                   edits)
+        total = edit_totals[y_label]
+        percent = round(100 * edits / total, 1)
+        cell_content += "{}%\n".format(percent)
+        if x_label in prev_edits.keys():
+            prev = prev_edits[x_label]
+            change = round(100 * ((edits - prev) / prev), 2)
+            if change > 0:
+                change_sign = "+"
+            else:
+                change_sign = ""
+            cell_content += "({}{}% change in edits)\n" \
+                .format(change_sign, change)
+        prev_edits[x_label] = edits
+        cell_content = cell_content.strip()
+        cell_content = cell_content.replace("\n", "{{br}}\n")
+        cell_content += "\n"
+        table += cell_content
+    table += "|-\n|}"
     return table
