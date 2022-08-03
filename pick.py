@@ -32,21 +32,21 @@ class UserPageMonthLine:
 
 class BandInfo:
     """Stores data for a user or article band,
-    consisting of "name", "members", and 
+    consisting of "name", "members", and
     "edit_count". This can be used to store
     information about, for example, the activity
     of a user band defined in one year for a
     different year."""
-    
+
     def __init__(self, name=""):
         self.name = name
         self.members = set()
         self.edit_count = 0
 
     def tuplify(self):
-        BandData = namedtuple("BandData", 
+        BandData = namedtuple("BandData",
                               ["name", "member_count", "edit_count"])
-        output = BandData(self.name, len(self.members), 
+        output = BandData(self.name, len(self.members),
                           self.edit_count)
         return output
 
@@ -71,7 +71,7 @@ class Picker:
         else:
             self.bots = set(bots)
         self.reset_counts()
-            
+
     def reset_counts(self):
         """Set all counts to default values"""
         self.inc = 0
@@ -88,6 +88,10 @@ class Picker:
         self.months = None
         self.by_user_band = False
         self.user_edits = None
+        self.page_edits = None
+        # whether to omit redirects from
+        # page edit count:
+        self.skip_redirects = True
         # bands by log 10 less 1,
         # aka number of digits:
         self.bands = [1, 2, 3, 4, None]
@@ -97,8 +101,8 @@ class Picker:
         """Given an edit count, return the corresponding
         edit band. Each band consists of numbers less than
         the given power of the base number (which in the
-        default base-10 case corresponds to the number of 
-        digits.) The maximum edit band is None, whether 
+        default base-10 case corresponds to the number of
+        digits.) The maximum edit band is None, whether
         specified or not.
         """
         if editcount < 1:
@@ -112,12 +116,12 @@ class Picker:
         print("Warning! No band specified for edit count\
                {}".format(editcount))
         return None
-        
+
     def get_monthly_edits_by_band(self,
                                   filepath=None,
                                   banded_users=None):
         """Given a {(user_id, band)} dict,
-        calculate monthly users and edits 
+        calculate monthly users and edits
         from provided file."""
         if banded_users is None:
             if self.banded_users is None:
@@ -155,6 +159,21 @@ class Picker:
             result = self.process_file(handle)
             self.basic_counts[path] = result
         return self.user_edits
+
+    def get_page_edits(self,
+                       filepaths=None,
+                       skip_redirects=True):
+        """Given a list of filepaths, return a
+        {(pageid, editcount)} dict."""
+        self.page_edits = defaultdict(int)
+        if filepaths is None:
+            filepaths = self.filepaths
+        for path in filepaths:
+            print("Processing {}".format(path))
+            handle = open(path, encoding="utf-8")
+            result = self.process_file(handle)
+            self.basic_counts[path] = result
+        return self.page_edits
 
     def get_pages_for_month(self, filepath, month):
         """Given a single filepath, return a set of
@@ -251,6 +270,25 @@ class Picker:
         if self.user_edits is not None:
             self.user_edits[user] += editcount
 
+    def process_page(self, lineobj):
+        """Increment counts for page and add page to
+        self.page_ids. If user_edits is set, update."""
+        page = lineobj.page_id
+        if lineobj.page_is_redirect == "0":
+            self.page_ids.add(page)
+        elif lineobj.page_is_redirect == "1":
+            self.redirect_ids.add(page)
+        else:
+            m = "Bad value for page_is_redirect: " 
+            m += lineobj.text
+            print(m)
+        if self.page_edits is not None:
+            if self.skip_redirects is True and lineobj.page_is_redirect:
+                return
+            else:
+                editcount = int(lineobj.month_edits)
+                self.page_edits[page] += editcount
+
     def line_is_ok(self, lineobj):
         """Return True if line is OK to process,
         otherwise False."""
@@ -266,7 +304,8 @@ class Picker:
             return False
         return True
 
-    def process_line(self, line):
+    @staticmethod
+    def process_line(line):
         """Process line into object and send for
         further processing."""
         lineobj = UserPageMonthLine()
@@ -284,14 +323,7 @@ class Picker:
             self.process_ip(lineobj)
         else:  # non-bot registered user
             self.process_user(lineobj)
-        page = lineobj.page_id
-        if lineobj.page_is_redirect == "0":
-            self.page_ids.add(page)
-        elif lineobj.page_is_redirect == "1":
-            self.redirect_ids.add(page)
-        else:
-            m = "Bad value for is_redirect:" + lineobj.text
-            print(m)
+        self.process_page(lineobj)
 
 
 def get_bot_ids(botpath, userpath):
@@ -431,30 +463,53 @@ def load_all_upms(filepath):
     return all_upms
 
 
-def get_year_band_totals(directory, bots=None):
-    """Get yearly totals of edits and users,
-    by user edit band for that year."""
+def get_year_band_totals(directory, 
+                         bots=None, 
+                         page_edits=False):
+    """Get yearly totals of edits and users or pages,
+    by user/page edit band for that year. If page_edits
+    is set, append a list of cumulative pagecounts by year 
+    to the results list."""
     from re import search
+    from os import listdir
+    from os.path import join
     if bots is None:
         print("Warning! Proceeding without bot file.")
         bots = set()
-    files = [x for x in os.listdir(directory) if "user_page" in x]
-    paths = [os.path.join(directory,x) for x in files]
+    files = [x for x in listdir(directory) if "user_page" in x]
+    paths = [join(directory, x) for x in files]
     output = list()
+    all_pages = set()
+    page_counts = []
     for p in paths:
         print(p)
-        picker = pick.Picker([p],["0"],bots)
-        user_edits = picker.get_user_edits()
-        starter = [(1,0),(2,0),(3,0),(4,0),(None,0)]
+        picker = Picker([p], ["0"], bots)
+        if page_edits is True:
+            member_edits = picker.get_page_edits(skip_redirects=True)
+        else:
+            member_edits = picker.get_user_edits()
+        starter = [(1, 0), (2, 0), (3, 0), (4, 0), (None, 0)]
         band_edits = dict(starter)
-        band_users = dict(starter)
-        for user, edits in user_edits.items():
-            user_band = picker.get_edit_band(edits)
-            band_edits[user_band] += edits
-            band_users[user_band] += 1
-        year_finder = re.search("\d{4}", p)
+        band_members = dict(starter)
+        for member, edits in member_edits.items():
+            band = picker.get_edit_band(edits)
+            band_edits[band] += edits
+            band_members[band] += 1
+        year_finder = search("\\d{4}", p)
+        label = p
         if year_finder:
-            label = year_finder.group(1)
-        data = (p[4:8], list(band_edits.items()), list(band_users.items()))
+            label = year_finder.group(0)
+        if page_edits is True:
+            page_count_before = len(all_pages)
+            all_pages |= picker.page_ids
+            page_count_after = len(all_pages)
+            new_pages = page_count_after - page_count_before
+            print(p, page_count_before, page_count_after, new_pages)
+            if new_pages < 0:
+                print("Error! Files out of order.")
+        page_counts.append((label, page_count_after))
+        data = (label, list(band_edits.items()), list(band_members.items()))
         output.append(data)
+    if page_edits is True:
+        output.append(page_counts)
     return output
