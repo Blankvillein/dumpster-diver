@@ -429,3 +429,32 @@ def load_all_upms(filepath):
                 print("Found duplicate:", str(upm))
             all_upms.add(upm)
     return all_upms
+
+
+def get_year_band_totals(directory, bots=None):
+    """Get yearly totals of edits and users,
+    by user edit band for that year."""
+    from re import search
+    if bots is None:
+        print("Warning! Proceeding without bot file.")
+        bots = set()
+    files = [x for x in os.listdir(directory) if "user_page" in x]
+    paths = [os.path.join(directory,x) for x in files]
+    output = list()
+    for p in paths:
+        print(p)
+        picker = pick.Picker([p],["0"],bots)
+        user_edits = picker.get_user_edits()
+        starter = [(1,0),(2,0),(3,0),(4,0),(None,0)]
+        band_edits = dict(starter)
+        band_users = dict(starter)
+        for user, edits in user_edits.items():
+            user_band = picker.get_edit_band(edits)
+            band_edits[user_band] += edits
+            band_users[user_band] += 1
+        year_finder = re.search("\d{4}", p)
+        if year_finder:
+            label = year_finder.group(1)
+        data = (p[4:8], list(band_edits.items()), list(band_users.items()))
+        output.append(data)
+    return output
