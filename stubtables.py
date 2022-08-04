@@ -286,7 +286,7 @@ def tuples2table(data, title=""):
     str
     Returns wikitable of provided stats
     """
-    headers = list(data.items())[0]._fields
+    headers = list(data.values())[0]._fields
     first_row_content = [""] + list(headers)
     table = "{|class=wikitable"
     table += """
@@ -295,11 +295,13 @@ def tuples2table(data, title=""):
 """.format(title)
     for label in first_row_content:
         table += "!{}\n".format(label)
-    for label, stats in data:
+    table += "|-\n"
+    labeled_stats = sorted(data.items())
+    for label, stats in labeled_stats:
         table += "!{}\n".format(label)
         for s in stats:
             table += "|{}\n".format(s)
-        table += "|-"
+        table += "|-\n"
     table += "|}"
     return table
 
@@ -358,4 +360,98 @@ def double_tuples_to_table(tuple_list,
         cell_content += "\n"
         table += cell_content
     table += "|-\n|}"
+    return table
+
+
+def get_annual_bands(output):
+    """Given a list of outputs in format
+    [('year',[(band, user_count)...], [(band, edit_count)...]]
+    return wikitable of banded amounts and percentages.
+    """
+    table = """{|class=wikitable
+|+Number of registered users who made ''n'' extant mainspace edits in each calendar year
+|Year
+|1-9 edits
+|10-99 edits
+|100-999 edits
+|1,000-9,999 edits
+|10,000+ edits
+|Percent of all{{br}}registered {{br}}users who edited
+|Percent of all{{br}}edits by {{br}}registered users
+|-
+"""
+    from re import sub
+    for year, banded_edits, banded_users in output:
+        band2edits = dict(banded_edits)
+        table += "|{}\n".format(year)
+        edit_percents = {}
+        user_percents = {}
+        total_edits = sum(band2edits.values())
+        total_users = sum([x[1] for x in banded_users])
+        banded_users.sort(key=lambda x: str(x[0]))
+        for band, users in banded_users:
+            edits = band2edits[band]
+            text = "{:,}".format(users) + " users {{br}}"
+            text += "making {{br}}" + "{:,}".format(edits)
+            text += " edits"
+            rounder = 1
+            edit_percent = round(100 * edits / total_edits, rounder)
+            if band is None:  # final and smallest band of users
+                rounder = 2
+            user_percent = round(100 * users / total_users, rounder)
+            if user_percent == 0.0 and users > 0:
+                user_percent = "{:.7f}".format(100 * users / total_users)
+                user_percent = sub("(0\\.0+[1-9]{1,2}).*", "\\1", user_percent)
+            edit_percents[band] = edit_percent
+            user_percents[band] = user_percent
+            table += "|{}\n".format(text)
+        user_max = max([x for x in user_percents.values() if type(x) is float])
+        user_values = [user_max] + list(user_percents.values())
+        user_chart = """../Dumpster chart
+ | data_max   = {}
+ | table_width = 15
+ | data3  = {}
+ | data4  = {}
+ | data5  = {}
+ | data6  = {}
+ | data7  = {}"""
+        if len(user_percents) > 5:
+            user_chart += "\n | data8  = {}"
+        user_chart = "{{" + user_chart.format(*user_values) + "}}"
+        table += "|{}\n".format(user_chart)
+        edit_max = max(edit_percents.values())
+        edit_values = [edit_max] + list(edit_percents.values())
+        edit_chart = """../Dumpster chart
+ | data_max   = {}
+ | table_width = 15
+ | data3  = {}
+ | data4  = {}
+ | data5  = {}
+ | data6  = {}
+ | data7  = {}"""
+        edit_chart = "{{" + edit_chart.format(*edit_values) + "}}"
+        table += "|{}\n".format(edit_chart)
+        table += "|-\n"
+    table += "|}"
+    return table
+
+
+def tabulate_years(uuu):
+    """Given a dict of user age distributions by year,
+    prepare a table with year of first edit in X and
+    years since first edit in Y."""
+    table = """{|class=wikitable
+|+Number of registered users who made first extant mainspace edit in X who were still editing after Y years.
+"""
+    years = sorted(uuu.keys())
+    for num in range(len(years)):
+        table += "! scope= col | {}\n".format(num)
+    table += "|-\n"
+    for year, ages in uuu:
+        ages.sort()
+        table += "! scope = row | {}\n".format(year)
+        for age, count in ages:
+            table += "|{}\n".format(count)
+        table += "|-\n"
+    table += "|}"
     return table
