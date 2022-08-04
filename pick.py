@@ -161,8 +161,7 @@ class Picker:
         return self.user_edits
 
     def get_page_edits(self,
-                       filepaths=None,
-                       skip_redirects=True):
+                       filepaths=None):
         """Given a list of filepaths, return a
         {(pageid, editcount)} dict."""
         self.page_edits = defaultdict(int)
@@ -179,13 +178,37 @@ class Picker:
         """Given a single filepath, return a set of
         all page IDs edited in a given month"""
         page_ids = set()
-        for line in open(filepath):
-            lineobj = self.process_line(line)
-            if not self.line_is_ok(lineobj):
-                continue
-            if lineobj.month == month:
-                page_ids.add(lineobj.page_id)
+        page_file = open(filepath)
+        with page_file:
+            for line in page_file:
+                lineobj = self.process_line(line)
+                if not self.line_is_ok(lineobj):
+                    continue
+                if lineobj.month == month:
+                    page_ids.add(lineobj.page_id)
         return page_ids
+
+    def get_users(self, filepath):
+        """For a given user-page-month CSV file,
+        return set of registered user IDs present
+        in the file."""
+        if not self.bots:
+            print("Warning! Proceeding without excluding bots.")
+        users = set()
+        user_file = open(filepath)
+        with user_file:
+            for line in user_file:
+                lineobj = self.process_line(line)
+                user_id = lineobj.user_id
+                if user_id is None:
+                    continue
+                if self.bots is not None:
+                    if lineobj.user_id in self.bots:
+                        continue
+                if user_id.startswith("IP:"):
+                    continue
+                users.add(user_id)
+        return users
 
     def get_basic_counts(self,
                          filepaths=None,
@@ -274,16 +297,13 @@ class Picker:
         """Increment counts for page and add page to
         self.page_ids. If user_edits is set, update."""
         page = lineobj.page_id
-        if lineobj.page_is_redirect == "0":
+        is_redirect = bool(int(lineobj.page_is_redirect))
+        if is_redirect is False:
             self.page_ids.add(page)
-        elif lineobj.page_is_redirect == "1":
-            self.redirect_ids.add(page)
         else:
-            m = "Bad value for page_is_redirect: " 
-            m += lineobj.text
-            print(m)
+            self.redirect_ids.add(page)
         if self.page_edits is not None:
-            if self.skip_redirects is True and lineobj.page_is_redirect:
+            if self.skip_redirects is True and is_redirect:
                 return
             else:
                 editcount = int(lineobj.month_edits)
@@ -409,7 +429,7 @@ class BasicStats:
         self.total_revisions += count
         if self.collect_pages is True:
             if lineobj.namespace == "0" or \
-               self.mainspace_only is False:
+                    self.mainspace_only is False:
                 self.page_ids.add(lineobj.page_id)
                 self.user_ids.add(lineobj.user_id)
         user_month = (lineobj.user_id, lineobj.month)
@@ -450,8 +470,9 @@ def load_all_upms(filepath):
     return a set of all user-page-months and complain
     if any dups are found."""
     all_upms = set()
-    with open(filepath) as lines:
-        for line in lines:
+    upm_file = open(filepath)
+    with upm_file:
+        for line in upm_file:
             lineobj = UserPageMonthLine()
             lineobj.from_csv(line)
             if lineobj.user_id is None:
@@ -463,12 +484,105 @@ def load_all_upms(filepath):
     return all_upms
 
 
-def get_year_band_totals(directory, 
-                         bots=None, 
+def file2year(filename):
+    """Return year if present in filename,
+    otherwise return filename."""
+    from re import search
+    year_finder = search("[12][09]\\d\\d", filename)
+    label = filename
+    if year_finder:
+        label = year_finder.group(0)
+    return label
+
+
+def get_user_ages(users, this_year, user_years):
+    """Given a set of users from this_year and a
+    {year:set([user IDs])} dict, return a defaultdict
+    of the age distribution of this_year's users."""
+    this_year = int(this_year)
+    user_ages = dict()
+    first_years = reversed(sorted(user_years.keys()))
+    for y in first_years:
+        first_year = int(y)
+        age = this_year - first_year
+        first_year_users = user_years[y].intersection(users)
+        user_ages[age] = len(first_year_users)
+    return user_ages
+
+
+def get_user_ages_by_year(directory, bots=None):
+    """Get the age distribution of editors editing
+    during each year."""
+    from os import listdir
+    from os.path import join
+    upm_files = [join(directory, x) for x in
+                 listdir(directory) if "user_page_month" in x]
+    user_years = dict()
+    user_ages = dict()
+    existing_users = set()
+    if bots is None:
+        bots = set()
+    for u in upm_files:
+        year = file2year(u)
+        if not year.isnumeric():
+            print("Bad file name: {}".format(u))
+            continue
+        picker = Picker(namespaces=["0"], bots=bots)
+        year_users = picker.get_users(filepath=u)
+        new_users = year_users - existing_users
+        old_users = existing_users.intersection(year_users)
+        print(year, len(year_users), len(new_users), len(old_users))
+        year_ages = get_user_ages(old_users, year, user_years)
+        year_ages[0] = len(new_users)
+        year_ages_listed = sorted(year_ages.items())
+        user_years[year] = new_users
+#        print([(x,len(user_years[x])) for x in user_years.keys()])
+        existing_users |= new_users
+        user_ages[year] = year_ages_listed
+        print(year, str(year_ages_listed))
+    return user_ages
+
+
+def get_weighted_ages(directory, bots=None):
+    """Get the mean age of editors editing during
+    each year, weighted by edits (i.e. over
+    all non-bot edits made, the mean editor age)."""
+    from os import listdir
+    from os.path import join
+    upm_files = [join(directory, x) for x in
+                 listdir(directory) if "user_page_month" in x]
+    user_years = dict()
+    user_ages = dict()
+    existing_users = set()
+    if bots is None:
+        bots = set()
+    for u in upm_files:
+        year = file2year(u)
+        if not year.isnumeric():
+            print("Bad file name: {}".format(u))
+            continue
+        picker = Picker(namespaces=["0"], bots=bots)
+        year_users = picker.get_users(filepath=u)
+        new_users = year_users - existing_users
+        old_users = existing_users.intersection(year_users)
+        print(year, len(year_users), len(new_users), len(old_users))
+        year_ages = get_user_ages(old_users, year, user_years)
+        year_ages[0] = len(new_users)
+        year_ages_listed = sorted(year_ages.items())
+        user_years[year] = new_users
+#        print([(x,len(user_years[x])) for x in user_years.keys()])
+        existing_users |= new_users
+        user_ages[year] = year_ages_listed
+        print(year, str(year_ages_listed))
+    return user_ages
+
+
+def get_year_band_totals(directory,
+                         bots=None,
                          page_edits=False):
     """Get yearly totals of edits and users or pages,
     by user/page edit band for that year. If page_edits
-    is set, append a list of cumulative pagecounts by year 
+    is set, append a list of cumulative pagecounts by year
     to the results list."""
     from re import search
     from os import listdir
@@ -507,7 +621,7 @@ def get_year_band_totals(directory,
             print(p, page_count_before, page_count_after, new_pages)
             if new_pages < 0:
                 print("Error! Files out of order.")
-        page_counts.append((label, page_count_after))
+            page_counts.append((label, page_count_after))
         data = (label, list(band_edits.items()), list(band_members.items()))
         output.append(data)
     if page_edits is True:
