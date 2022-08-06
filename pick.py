@@ -191,9 +191,10 @@ class Picker:
     def get_users(self, filepath):
         """For a given user-page-month CSV file,
         return set of registered user IDs present
-        in the file."""
+        in the file. If total_edits is set, also return
+        total number of edits associated with those IDs."""
         if not self.bots:
-            print("Warning! Proceeding without excluding bots.")
+            print("Warning! Getting users without excluding bots.")
         users = set()
         user_file = open(filepath)
         with user_file:
@@ -543,7 +544,9 @@ def get_user_ages_by_year(directory, bots=None):
     return user_ages
 
 
-def get_weighted_ages(directory, bots=None):
+def get_weighted_age_by_year(directory,
+                             bots=None,
+                             namespaces=None):
     """Get the mean age of editors editing during
     each year, weighted by edits (i.e. over
     all non-bot edits made, the mean editor age)."""
@@ -551,34 +554,45 @@ def get_weighted_ages(directory, bots=None):
     from os.path import join
     upm_files = [join(directory, x) for x in
                  listdir(directory) if "user_page_month" in x]
+    if namespaces is None:
+        namespaces = ["0"]
     user_years = dict()
-    user_ages = dict()
     existing_users = set()
+    averages = []
     if bots is None:
+        print("Warning! Proceeding without bot exclusion.")
         bots = set()
     for u in upm_files:
         year = file2year(u)
         if not year.isnumeric():
             print("Bad file name: {}".format(u))
             continue
-        picker = Picker(namespaces=["0"], bots=bots)
-        year_users = picker.get_users(filepath=u)
+        picker = Picker(namespaces=namespaces, bots=bots)
+        user_edits = picker.get_user_edits(filepaths=[u])
+        year_users = set(user_edits.keys())
         new_users = year_users - existing_users
         old_users = existing_users.intersection(year_users)
         print(year, len(year_users), len(new_users), len(old_users))
-        year_ages = get_user_ages(old_users, year, user_years)
-        year_ages[0] = len(new_users)
-        year_ages_listed = sorted(year_ages.items())
+        total_edits = sum(user_edits.values())
+#       mean: sum([edits * editor_age])/num_edits
+        weighted_edits = 0
+        for old_year, users in user_years.items():
+            age = int(year) - int(old_year)
+            users_of_age = users.intersection(year_users)
+            edits_by_age = sum([user_edits[x] for x in users_of_age])
+            weighted_edits += edits_by_age * age
+            print(year, age, edits_by_age, weighted_edits)
+        mean_age = weighted_edits / total_edits
+        print(mean_age)
+        averages.append((year, mean_age))
         user_years[year] = new_users
-#        print([(x,len(user_years[x])) for x in user_years.keys()])
         existing_users |= new_users
-        user_ages[year] = year_ages_listed
-        print(year, str(year_ages_listed))
-    return user_ages
+    return averages
 
 
 def get_year_band_totals(directory,
                          bots=None,
+                         namespaces=None,
                          page_edits=False):
     """Get yearly totals of edits and users or pages,
     by user/page edit band for that year. If page_edits
@@ -595,11 +609,14 @@ def get_year_band_totals(directory,
     output = list()
     all_pages = set()
     page_counts = []
+    if namespaces is None:  # default to mainspace
+        namespaces = ["0"]
     for p in paths:
         print(p)
-        picker = Picker([p], ["0"], bots)
+        picker = Picker([p], namespaces, bots)
         if page_edits is True:
-            member_edits = picker.get_page_edits(skip_redirects=True)
+            picker.skip_redirects = True
+            member_edits = picker.get_page_edits()
         else:
             member_edits = picker.get_user_edits()
         starter = [(1, 0), (2, 0), (3, 0), (4, 0), (None, 0)]
@@ -618,7 +635,6 @@ def get_year_band_totals(directory,
             all_pages |= picker.page_ids
             page_count_after = len(all_pages)
             new_pages = page_count_after - page_count_before
-            print(p, page_count_before, page_count_after, new_pages)
             if new_pages < 0:
                 print("Error! Files out of order.")
             page_counts.append((label, page_count_after))
@@ -627,3 +643,51 @@ def get_year_band_totals(directory,
     if page_edits is True:
         output.append(page_counts)
     return output
+
+
+def get_cross_bands(filepath,
+                    namespaces1=None,
+                    namespaces2=None,
+                    bots=None):
+    """Get yearly totals of edits and users, by user/page
+    edit band, sorting users from namespaces2 into bands
+    based on edit count in namespaces1. By default, compare
+    mainspace to Project and Project_talk."""
+    if namespaces1 == namespaces2:
+        raise ValueError
+    if namespaces1 is None:
+        namespaces1 = ["0"]
+    if namespaces2 is None:
+        namespaces2 = ["4", "5"]
+    if bots is None:
+        print("Warning! Proceeding without bot file.")
+        bots = set()
+    picker = Picker([filepath], namespaces1, bots)
+    user_edits = picker.get_user_edits()
+    banded_users = dict()
+    print(sum(user_edits.values()), picker.num_user_edits)  # should be equal
+    starter = [(1, 0), (2, 0), (3, 0), (4, 0), (None, 0)]
+    band_edits = dict(starter)
+    band_users = dict(starter)
+    for user, edits in user_edits.items():
+        band = picker.get_edit_band(edits)
+        band_edits[band] += edits
+        band_users[band] += 1
+        banded_users[user] = band
+    data1 = (list(band_edits.items()), list(band_users.items()))
+    picker2 = Picker([filepath], namespaces2, bots)
+    user_edits2 = picker2.get_user_edits()
+    band_edits2 = dict(starter)
+    band_users2 = dict(starter)
+    for user, edits in user_edits2.items():
+        try:
+            band = banded_users[user]
+        except KeyError:
+            band = 0
+            if 0 not in band_edits2.keys():
+                band_edits2[0] = 0
+                band_users2[0] = 0
+        band_edits2[band] += edits
+        band_users2[band] += 1
+    data2 = (list(band_edits2.items()), list(band_users2.items()))
+    return data1, data2
