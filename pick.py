@@ -674,7 +674,7 @@ def get_cross_bands(filepath,
         band_edits[band] += edits
         band_users[band] += 1
         banded_users[user] = band
-    data1 = (list(band_edits.items()), list(band_users.items()))
+#    data1 = (list(band_edits.items()), list(band_users.items()))
     picker2 = Picker([filepath], namespaces2, bots)
     user_edits2 = picker2.get_user_edits()
     band_edits2 = dict(starter)
@@ -690,4 +690,4 @@ def get_cross_bands(filepath,
         band_edits2[band] += edits
         band_users2[band] += 1
     data2 = (list(band_edits2.items()), list(band_users2.items()))
-    return data1, data2
+    return data2
