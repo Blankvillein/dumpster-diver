@@ -447,7 +447,7 @@ def tabulate_years(uuu):
     for num in range(len(years)):
         table += "! scope= col | {}\n".format(num)
     table += "|-\n"
-    for year, ages in uuu:
+    for year, ages in uuu.items():
         ages.sort()
         table += "! scope = row | {}\n".format(year)
         for age, count in ages:
@@ -455,3 +455,4 @@ def tabulate_years(uuu):
         table += "|-\n"
     table += "|}"
     return table
+ 
