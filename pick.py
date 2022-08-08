@@ -70,6 +70,14 @@ class Picker:
             self.bots = set()
         else:
             self.bots = set(bots)
+        # whether to omit redirects from
+        # page edit count:
+        self.skip_redirects = True
+        # bands by log 10 less 1,
+        # aka number of digits:
+        self.bands = [1, 2, 3, 4, None]
+        self.by_month = False
+        self.by_user_band = False
         self.reset_counts()
 
     def reset_counts(self):
@@ -84,17 +92,9 @@ class Picker:
         self.num_user_edits = 0
         self.num_ip_edits = 0
         self.basic_counts = {}
-        self.by_month = False
         self.months = None
-        self.by_user_band = False
         self.user_edits = None
         self.page_edits = None
-        # whether to omit redirects from
-        # page edit count:
-        self.skip_redirects = True
-        # bands by log 10 less 1,
-        # aka number of digits:
-        self.bands = [1, 2, 3, 4, None]
         self.banded_users = defaultdict(int)
 
     def get_edit_band(self, editcount, base=10):
@@ -149,7 +149,7 @@ class Picker:
     def get_user_edits(self,
                        filepaths=None):
         """Given a list of filepaths, return a
-        {(userid, editcount)} dict."""
+        {userid : editcount} dict."""
         self.user_edits = defaultdict(int)
         if filepaths is None:
             filepaths = self.filepaths
@@ -163,7 +163,7 @@ class Picker:
     def get_page_edits(self,
                        filepaths=None):
         """Given a list of filepaths, return a
-        {(pageid, editcount)} dict."""
+        {pageid : editcount} dict."""
         self.page_edits = defaultdict(int)
         if filepaths is None:
             filepaths = self.filepaths
@@ -191,8 +191,7 @@ class Picker:
     def get_users(self, filepath):
         """For a given user-page-month CSV file,
         return set of registered user IDs present
-        in the file. If total_edits is set, also return
-        total number of edits associated with those IDs."""
+        in the file."""
         if not self.bots:
             print("Warning! Getting users without excluding bots.")
         users = set()
@@ -201,6 +200,9 @@ class Picker:
             for line in user_file:
                 lineobj = self.process_line(line)
                 user_id = lineobj.user_id
+                namespace = lineobj.namespace
+                if namespace not in self.namespaces:
+                    continue
                 if user_id is None:
                     continue
                 if self.bots is not None:
@@ -216,7 +218,7 @@ class Picker:
                          maxlines=None,
                          by_month=False):
         """Given filepaths to user-page-month CSV
-        files, return a {filepath, <stats>} dict.
+        files, return a {filepath : stats} dict.
         If namespaces provided, collect only for those
         namespaces. If bots provided, exclude bots.
         Bots must be set of bot IDs (not usernames)."""
@@ -261,6 +263,8 @@ class Picker:
         return result
 
     def get_results(self):
+        """Generate a Results namedtuple
+        from the Picker's basic stats."""
         Results = namedtuple("Results",
                              ["num_users", "num_ips",
                               "num_pages", "num_redirects",
@@ -277,8 +281,7 @@ class Picker:
         return result
 
     def process_ip(self, lineobj):
-        """Increment counts for IP and add IP to
-        self.ips"""
+        """Increment counts for IP and add IP to self.ips"""
         self.num_ip_upm += 1
         self.num_ip_edits += int(lineobj.month_edits)
         self.ips.add(lineobj.user_id)
@@ -296,7 +299,7 @@ class Picker:
 
     def process_page(self, lineobj):
         """Increment counts for page and add page to
-        self.page_ids. If user_edits is set, update."""
+        self.page_ids."""
         page = lineobj.page_id
         is_redirect = bool(int(lineobj.page_is_redirect))
         if is_redirect is False:
@@ -384,10 +387,28 @@ def fields2line(fields):
     return line
 
 
+def get_upm_files(directory):
+    """Given a directory, return a sorted
+    list of paths to CSV files with
+    "user_page_month" in filename."""
+    from os import listdir
+    from os.path import join
+    upm_files = []
+    for filename in listdir(directory):
+        if not filename.endswith(".csv"):
+            continue
+        if not "user_page_month" in filename:
+            continue
+        filepath = join(directory, filename)
+        upm_files.append(filepath)
+    upm_files.sort()
+    return upm_files
+
+
 def stats2csv(stats, unit_name="year"):
-    """Given a {(unit, <data>)} dict, where
-    data is a namedtuple and unit is a year or month,
-    convert to CSV"""
+    """Given a {unit : data} dict, where data is a
+    namedtuple and unit is a year or month, return
+    CSV text."""
     csv = ""
     headers = [unit_name]
     data = list(stats.values())[0]
@@ -400,70 +421,6 @@ def stats2csv(stats, unit_name="year"):
         line = fields2line(values)
         csv += line
     return csv
-
-
-class BasicStats:
-    """Holder for basic stats from
-    digesting user-page-months CSV"""
-
-    def __init__(self):
-        self.peak_user_page_months = {}
-        self.current_peaks = defaultdict(int)
-        self.total_revisions = 0
-        self.page_ids = set()
-        self.user_ids = set()
-        self.collect_pages = False
-        self.mainspace_only = False
-        self.mainspace_user_months = set()
-        self.mainspace_page_months = set()
-        self.months_by_namespace = defaultdict(int)
-        self.edits_by_namespace = defaultdict(int)
-
-    def process_line(self, lineobj):
-        """Given a UserPageMonthLine object,
-        process it for global stats."""
-        if lineobj.user_id is None:
-            print("Skipping line object with no user ID")
-            return
-        self.months_by_namespace[lineobj.namespace] += 1
-        count = int(lineobj.month_edits)
-        self.total_revisions += count
-        if self.collect_pages is True:
-            if lineobj.namespace == "0" or \
-                    self.mainspace_only is False:
-                self.page_ids.add(lineobj.page_id)
-                self.user_ids.add(lineobj.user_id)
-        user_month = (lineobj.user_id, lineobj.month)
-        page_month = (lineobj.page_id, lineobj.month)
-        self.edits_by_namespace[lineobj.namespace] += count
-        if count > self.current_peaks[lineobj.namespace]:
-            self.peak_user_page_months[lineobj.namespace] = \
-                (lineobj.user_id, lineobj.page_id, count)
-            self.current_peaks[lineobj.namespace] = count
-        if lineobj.namespace == "0":
-            if self.collect_pages:
-                self.mainspace_user_months.add(user_month)
-                self.mainspace_page_months.add(page_month)
-
-    def load_stats(self,
-                   months_filepath="user_page_months_output.csv",
-                   limit=None):
-        """Load dict of users from CSV files in format:
-        {(user_id, User)}."""
-        with open(months_filepath, encoding="utf-8") as upm_file:
-            linecount = 0
-            for line in upm_file:
-                linecount += 1
-                if limit is not None:
-                    if linecount > limit:
-                        print("Ending at line {}".format(linecount))
-                        break
-                lineobj = UserPageMonthLine()
-                lineobj.from_csv(line)
-                if linecount == 1 and lineobj.user_id is None:
-                    # skip header
-                    continue
-                self.process_line(lineobj)
 
 
 def load_all_upms(filepath):
@@ -513,7 +470,7 @@ def get_user_ages(users, this_year, user_years):
 
 def get_user_ages_by_year(directory, bots=None):
     """Get the age distribution of editors editing
-    during each year."""
+    in mainspace during each year."""
     from os import listdir
     from os.path import join
     upm_files = [join(directory, x) for x in
@@ -528,7 +485,7 @@ def get_user_ages_by_year(directory, bots=None):
         if not year.isnumeric():
             print("Bad file name: {}".format(u))
             continue
-        picker = Picker(namespaces=["0"], bots=bots)
+        picker = Picker(filepaths=[u], namespaces=["0"], bots=bots)
         year_users = picker.get_users(filepath=u)
         new_users = year_users - existing_users
         old_users = existing_users.intersection(year_users)
@@ -549,11 +506,9 @@ def get_weighted_age_by_year(directory,
                              namespaces=None):
     """Get the mean age of editors editing during
     each year, weighted by edits (i.e. over
-    all non-bot edits made, the mean editor age)."""
-    from os import listdir
-    from os.path import join
-    upm_files = [join(directory, x) for x in
-                 listdir(directory) if "user_page_month" in x]
+    all non-bot edits made, the mean editor age).
+    Defaults to mainspace."""
+    upm_files = get_upm_files(directory)
     if namespaces is None:
         namespaces = ["0"]
     user_years = dict()
@@ -574,7 +529,7 @@ def get_weighted_age_by_year(directory,
         old_users = existing_users.intersection(year_users)
         print(year, len(year_users), len(new_users), len(old_users))
         total_edits = sum(user_edits.values())
-#       mean: sum([edits * editor_age])/num_edits
+#       mean calculated as: (sum of (edits * editor_age))/num_edits
         weighted_edits = 0
         for old_year, users in user_years.items():
             age = int(year) - int(old_year)
@@ -599,13 +554,10 @@ def get_year_band_totals(directory,
     is set, append a list of cumulative pagecounts by year
     to the results list."""
     from re import search
-    from os import listdir
-    from os.path import join
     if bots is None:
         print("Warning! Proceeding without bot file.")
         bots = set()
-    files = [x for x in listdir(directory) if "user_page" in x]
-    paths = [join(directory, x) for x in files]
+    paths = get_upm_files(directory)
     output = list()
     all_pages = set()
     page_counts = []
@@ -691,3 +643,52 @@ def get_cross_bands(filepath,
         band_users2[band] += 1
     data2 = (list(band_edits2.items()), list(band_users2.items()))
     return data2
+
+
+def get_banded_ages(directory, bots=None):
+    """Return the age distribution of editors editing
+    in mainspace in each edit band during each year,
+    as a {(year,age,band):(users,edits)} dict."""
+    upm_paths = get_upm_files(directory)
+    banded_ages = dict()
+    user_years = dict()
+    users2years = dict()
+    existing_users = set()
+    if bots is None:
+        print("Warning! Proceeding without bot exclusion.")
+        bots = set()
+    for path in upm_paths:
+        print(path)
+        year = file2year(path)
+        if not year.isnumeric():
+            print("Bad file name: {}".format(path))
+            continue
+        picker = Picker(filepaths=[path], namespaces=["0"], bots=bots)
+        picker.skip_redirects = False
+        user_edits = picker.get_user_edits()
+        band_edits = defaultdict(int)
+        band_users = defaultdict(int)
+        year_users = set(user_edits.keys())
+        new_users = year_users - existing_users
+        old_users = existing_users.intersection(year_users)
+        outstr = "{}: {} users, {} new + {} old"
+        outstr = outstr.format(year, len(year_users),
+                               len(new_users), len(old_users))
+        print(outstr)
+        for n in new_users:
+            users2years[n] = int(year)
+        for user, editcount in user_edits.items():
+            user_age = int(year) - users2years[user]
+            if user_age < 0:
+                print("Warning! Files out of order", path, user)
+            band = picker.get_edit_band(editcount)
+            key = (year, user_age, band)
+            band_edits[key] += editcount
+            band_users[key] += 1
+        for key, editcount in band_edits.items():
+            user_count = band_users[key]
+            banded_ages[key] = (user_count, editcount)
+        user_years[year] = new_users
+        existing_users |= new_users
+    return banded_ages
+    
