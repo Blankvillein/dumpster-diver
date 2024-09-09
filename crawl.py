@@ -616,7 +616,7 @@ def get_output_filename(output_name, year=None):
     """For a given output of Crawler,
     return CSV filename"""
     filename = ""
-    if year is not None:
+    if year:
         if output_name == "user_page_months_output":
             filename = str(year) + "-"
     filename += output_name + ".csv"
@@ -654,15 +654,14 @@ def main(args):
                         action="store_false",
                         dest="overwrite",
                         help="Append to existing CSV files rather than overwriting")
-    parser.parse_args(args)
-    crawler = Crawler(filepath=parser.filepath,
-                      log_to_console=parser.log_to_console,
-                      mainspace_only=parser.mainspace_only,
-                      overwrite=parser.overwrite)
-    crawler.crawl(maxlines=parser.maxlines)
+    parsed = parser.parse_args(args)
+    crawler = Crawler(filepath=parsed.filepath,
+                      log_to_console=parsed.log_to_console,
+                      mainspace_only=parsed.mainspace_only,
+                      overwrite=parsed.overwrite)
+    crawler.crawl(maxlines=parsed.maxlines)
 
 
 if __name__ == "__main__":
     from sys import argv
     main(argv[1:])
-    
