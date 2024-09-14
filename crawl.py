@@ -343,7 +343,7 @@ class Crawler:
             self.log(message)
             return ""
         tag_content = tag_pieces[0]
-        tag_content = tag_content.strip()
+        tag_content = tag_content.strip(" ") # avoid stripping whitespace that may be valid title
         return tag_content
 
     def reset_page(self):
