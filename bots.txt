@@ -1,331 +1,34 @@
 'zinbot
-AAlertBot
-Acebot
-Addbot
-AdminStatsBot
-Ahechtbot
-Aidan9382-Bot
-Amalthea (bot)
-AndreasJSbot
-AnomieBOT
-AnomieBOT II
-AnomieBOT III
-AntiCompositeBot
-ArbClerkBot
-Arbitrarily0Bot
-ArmbrustBot
-ArticlesForCreationBot
-AudeBot
-AvicBot
-B-bot
-BD2412bot
-BG19bot
-BHGbot
-BOTarate
-BOTijo
-BattyBot
-Bender the Bot
-BernsteinBot
-Bibcode Bot
-Bitbotje
-BogBot
-Bot1058
-Bot11598
-Bot24
-BotMultichill
-BotMultichillT
-BotPuppet
-BrownBot
-BsherrAWBBOT
-COIBot
-CactusBot
-CanisRufus
-CeraBot
-Cerabot~enwiki
-Cewbot
-Chartbot
-CheMoBot
-Chem-awb
-Chobot
-Chris G Bot
-Chris G Bot 3
-Citation bot
-Citation bot 1
-Citation bot 2
-Citation bot 3
-Citation bot 4
-CitationCleanerBot
-ClueBot II
-ClueBot III
-ClueBot NG
-CmdrObot
-CommonsDelinker
-CommonsNotificationBot
-Community Tech bot
-ContinuityBot
-CountryBot
-CrazynasBot
-Cyberbot I
-Cyberbot II
-Cydebot
-DPL bot
-DYKHousekeepingBot
-DYKUpdateBot
-DannyS712 bot
-DannyS712 bot III
-Dapperbot
-DarafshBot
-DatBot
-DeltaQuadBot
-DemonDays64 Bot
-DeprecatedFixerBot
-Dexbot
-DoggoBot
-Dreamy Jazz Bot
-DumbBOT
-Dušan Kreheľ (bot)
-EarwigBot
-EberBot
-EmausBot
-Emijrpbot
-EnterpriseyBot
-EranBot
-ErfgoedBot
-EsquivalienceBot
-FACBot
-FairuseBot
-FastilyBot
-Femto Bot
-Filedelinkerbot
-FireflyBot
-FireflyBot II
-Flow talk page manager
-Fluxbot
-FrescoBot
-Gabrielchihonglee-Bot
-Galobot
-Ganeshbot
-GeneralBotability
-GimmeBot
-GreenC bot
-Guanabot
-H3llBot
-HBC AIV helperbot
-HBC AIV helperbot11
-HBC AIV helperbot5
-Harej bot
-Hazard-Bot
-Helpful Pixie Bot
-Hmainsbot1
-HostBot
-HotArticlesBot
-HtonlBot
-ImageRemovalBot
-ImageTaggingBot
-InceptionBot
-IndentBot
-InfoboxBot
-InternetArchiveBot
-Italic title bot
-IznoBot
-J Milburn Bot
-JAnDbot
-JBradley Bot
-JCW-CleanerBot
-JCbot
-JJMC89 bot
-JJMC89 bot II
-JJMC89 bot III
-JL-Bot
-JVbot
-JamietwBot
-JarBot
-JeffGBot
-JhealdBot
-Joe's Null Bot
-Joe's Olympic Bot
-John of Reading Bot
-Josvebot
-KMLbot
-KaldariBot
-KasparBot
-KingpinBot
-KiranBOT
-KolbertBot
-Krdbot
-LaraBot
-Legobot
-ListManBot
-ListeriaBot
-LivingBot
-Lonjers french region rename bot
-Lowercase sigmabot
-Lowercase sigmabot II
-Lowercase sigmabot III
-Luasóg bot
-Lucasbfrbot
-Luke081515Bot
-MBisanzBot
-MDanielsBot
-Magic links bot
-Maintenance script
-MajavahBot
-Makecat-bot
-MalnadachBot
-MandelBot
-Manishbot
-Mathbot
-Mdann52 IMG bot
-Mdann52 bot
-MediaWiki default
-MediaWiki message delivery
-MenoBot
-MenoBot II
-Merge bot
-MifterBot
-MifterBot I
-MilHistBot
-MinusBot
-Monkbot
-MoohanBOT
-MuZebot
-Muhbot
-Muninnbot
-MusikBot
-MusikBot II
-Mz7 (bot)
-NationalRegisterBot
-NihiltresBot
-NihlusBOT
-NovemBot
-NukeBot
-OAbot
-OgreBot
-Ohms Law Bot
-OmniBot
-OutreachDashboardBot
-PDFbot
-PearBOT
-PearBOT II
-Petan-Bot
-Philosopher-Bot
-PhotoCatBot
-Pi bot
-PkbwcgsBot
-Portal box bot
-PotatoBot
-PowerBOT
-PrimeBOT
-ProcBot
-ProcBot II
-ProteinBoxBot
-Qbugbot
-Qwerfjkl (bot)
-RMCD bot
-RagesossBot
-Ramaksoud2000Bot
-Reedy Bot
-Reports bot
-RetractionBot
-RichBot
-Rick Bot
-RileyBot
-RjwilmsiBot
-Rlink2 Bot
-RockfangBot
-RottenBot
-RscprinterBot
-RussBot
-SD5bot
-SDPatrolBot
-SDPatrolBot II
-SDZeroBot
-SPPatrolBot
-SSTbot
-ST47Bot
-SatyrBot
-ScannerBot
-Scsbot
-SdkbBot
-Seppi333Bot
-SeveroBot
-ShortDescBot
-SimplexityBot
-SineBot
-Snotbot
-Snowbot
-SpaceFactsBot
-SporkBot
-SportsStatsBot
-Stefan2bot
-SteveBot
-Stwalkerbot
-SuggestBot
-SvickBOT
-TAP Bot
-TFA Protector Bot
-TPBot
-TTObot
-TWLBot
-TedderBot
-Texvc2LaTeXBot
-Thadius856AWB
-The Anomebot2
-The wubbot
-TheCowBot
-TheMagikBOT
-TheSandBot
-Thehelpfulbot
-TohaomgBot
-TokenzeroBot
-TolBot
-Tom's Tagging Bot
-Tom.Bot
-TweetCiteBot
-UTRSBot
-UcuchaBot
-UsuallyNonviolentBot
-VIAFbot
-VRTS Migration Bot
-VWBot
-VahurzpuBot
-VeblenBot
-VoABot
-WOSlinkerBot
-WP 1.0 bot
-WaldirBot
-WebCiteBOT
-WelcomerBot
-WikiCleanerBot
-WikiProject Notification Service
-WildBot
-William Avery Bot
-WoodwardBot
-WugBot
-WxBot
-Xphoisbot
-Xqbot
-Yapperbot
-YiFeiBot
-Yobot
-ZackBot
 .anacondabot
-^demonBot2
 28bot
 718 Bot
 7SeriesBOT
+A-lú-mih-bot
 A4bot
+AAlertBot
 ABot
-Abotzi
-AccReqBot
-AdambroBot
-Adlerbot
-Admrbot
 AEBot
 AFD Bot
+AHbot
+AMABot
+AMbot
+AP.BOT
+ARSBot
+AWeenieBot
+AZatBot~enwiki
+Abotzi
+AccReqBot
+Acebot
+AdambroBot
+Addbot
+Adlerbot
+AdminStatsBot
+AdminStatsBot 2
+Admrbot
 AfDBot
 AfDStatBot
-AHbot
+Ahechtbot
+Aidan9382-Bot
 AilurophobiaBot
 AkhtaBot
 Aksibot
@@ -333,8 +36,8 @@ Alaibot
 AlanBOT
 Albambot
 AlekseyBot
-Alexbot
 AlexNewArtBot
+Alexbot
 Alirezabot
 AlleborgoBot
 Almabot
@@ -343,9 +46,7 @@ AloysiusLiliusBot
 Alph Bot
 Alphachimpbot
 AlptaBot
-A-lú-mih-bot
-AMABot
-AMbot
+Amalthea (bot)
 AmeliorationBot
 Amirobot
 Amolbot
@@ -354,104 +55,158 @@ Analphabot
 Anchor Link Bot
 AndersBot
 Andrea105Bot
+AndreasJSbot
+Android Mouse Bot
 Android Mouse Bot 2
 Android Mouse Bot 3
 Android Mouse Bot 4
-Android Mouse Bot
 Anibot
+AnomieBOT
+AnomieBOT II
+AnomieBOT III
 AntiAbuseBot
-Antischmitzbot
+AntiCompositeBot
 AntiSpamBot
 AntiVandalBot
+Antischmitzbot
 Anybot
-AP.BOT
+ArbClerkBot
 ArbComBot
+Arbitrarily0Bot
 ArkyBot
-ARSBot
+ArmbrustBot
 ArthurBot
 ArticleAlertbot
+ArticlesForCreationBot
 AsgardBot
-AstaBOTh15
 AstRoBot
+AstaBOTh15
 AswnBot
+AttributionBot
+AudeBot
 AutocracyBot
+AvicBot
 AvicBot2
 AvocatoBot
-AWeenieBot
 AwOcBot
 AzaBot
-AZatBot~enwiki
+B-bot
 BAGBot
+BD2412bot
+BG19bot
+BHGbot
+BJBot
+BOT-Superzerocool
+BOTarate
+BOTepho
+BOTijo
+BU RoBOT
 BaldBot
+BaranBOT
+BattyBot
 Beastie_Bot
 BendelacBOT
+Bender the Bot
 BenjBot
 BenoniBot~enwiki
 BenzolBot
 BepBot
+BernsteinBot
 Bersibot
-BetacommandBot
 BetBot~enwiki
+BetacommandBot
 Bgbot
-BHGbot
+Bibcode Bot
 Bikabot
-BJBot
+Bitbotje
 Blood_Oath_Bot
 Bluebot
 Bocianski.bot
 BodhisattvaBot
+BogBot
 BorgardeBot
 BoricuaBot
+Bot-Schafter
+Bot1058
+Bot11598
+Bot24
 Bot523
+BotCompuGeek
+BotKung
+BotMultichill
+BotMultichillT
+BotPuppet
 Bota47
 BotanyBot
-BotCompuGeek
 BotdeSki
-BOTepho
-BotKung
 Botpankonin
 Botryoidal
-Bot-Schafter
-BOT-Superzerocool
 Botx
 Botz~enwiki
 BoxCrawler
 BracketBot
 Broadbot
 BrokenAnchorBot
+BrownBot
 BryanBot
-BU RoBOT
-BücherBot
+BsherrAWBBOT
+BsoykaBot
+ButlerBlogBot
 Byrialbot
+BücherBot
+C1MM-bot
+CAT:TEMP_deletion_bot
+COBot
+COIBot
+CSBot
+CSDWarnBot
+CactusBot
+CanisRufus
 CapitalBot
 CarsracBot
-CAT:TEMP_deletion_bot
 CataBotTsirel
 Caypartisbot
 CensusBot
+CeraBot
+Cerabot~enwiki
+Cewbot
 ChandlerMapBot
+Chartbot
+CheMoBot
+Chem-awb
 ChenzwBot
 Cherybot
 ChessBOT
 Chlewbot
+Chobot
+Chris G Bot
 Chris G Bot 3
+ChrisSalij_Bot
 Chris_G_Bot_2
 Chrisbot
-ChrisSalij_Bot
+ChristieBot
 ChuispastonBot
+ChzzBot
 ChzzBot II
 ChzzBot IV
 ChzzBot_III
-ChzzBot
+Citation bot
+Citation bot 1
+Citation bot 2
+Citation bot 3
+Citation bot 4
+CitationCleanerBot
 CleanupListingBot
 ClickBot
 CloudNineBot
+ClueBot
 ClueBot Commons
+ClueBot II
+ClueBot III
 ClueBot IV
 ClueBot NG
 ClueBot VI
-ClueBot
-COBot
+CmdrObot
 CobraBot
 CocuBot
 CohesionBot
@@ -459,44 +214,71 @@ Collabsearch
 Comics-awb
 Commander Keane bot
 Commons fair use upload bot (usurped)
+CommonsDelinker
 CommonsNotification
 CommonsNotificationBot
+Community Tech bot
+ContinuityBot
+Conversion script
+CopyPatrolBot
 CopyToWiktionaryBot
 CorenSearchBot
 CounterVandalismBot
+CountryBot
+CrazynasBot
 CricketBot
 CrimsonBot
 Crypticbot
-CSBot
-CSDWarnBot
 Curpsbot-unicodify
 CwraschkeDataBot
+Cyberbot I
+Cyberbot II
+Cydebot
 CyeZBot~enwiki
+D'ohBot
 D6
+DASHBot
+DASHBotAV
+DEagleBot
+DFBot
+DHN-bot~enwiki
+DOI bot
+DPL bot
+DRN clerk bot
+DSisyphBot
+DYKBot
+DYKHousekeepingBot
+DYKReviewBot
+DYKToolsBot
+DYKUpdateBot
+DYKadminBot
 DanielBot
 Danielfolsom2.bot
+DannyS712 bot
+DannyS712 bot III
 Danumber1bot
+Dapperbot
 DarafshBot
 DarioBot~enwiki
 Dark_Shikari_Bot
 Darkicebot
 DarknessBot
-DASHBot
-DASHBotAV
+DatBot
 DavidWSBot
 DcoetzeeBot~enwiki
 DeadBot
 DeadLinkBOT
-DEagleBot
+DeadbeefBot
 DefaultsortBot
 DefconBot
 DeliveryBot
+DeltaQuadBot
+DemonDays64 Bot
 Denbot
+DeprecatedFixerBot
 DeskanaTest
 Detroiterbot
 Dexbot
-DFBot
-DHN-bot~enwiki
 Diego_Grez_Bot
 Diligent Terrier Bot
 Dinamik-bot
@@ -507,72 +289,82 @@ DirlBot
 DisambigBot
 DixonDBot
 DodoBot
-D'ohBot
-DOI bot
+DoggoBot
 DomBot
 DorganBot
 DottyQuoteBot
 Dpkbot
 DpmukBOT
+DrFO.Tn.Bot
+DrTrigonBot
 DragonBot
 Dreamy Jazz Bot
-DrFO.Tn.Bot
 DrilBot
 Drinibot
-DRN clerk bot
-DrTrigonBot
-DSisyphBot
 DumZiBoT
+DumbBOT
 DusterBot
 DustyBot
+Dušan Kreheľ (bot)
 DvyBot
 DyceBot
-DYKadminBot
-DYKBot
-DYKReviewBot
+EBot
+EBot IV
+EBot_II
+EBot_III
+ENewsBot
 EagleAstroidBot
+EarwigBot
 EarwigBot I
 EarwigBot III
 EarwigBot_II
 EarwigBot_V
-EBot IV
-EBot_II
-EBot_III
-EBot
+EberBot
 Ebrambot
 EchoBot
 EdBot
 EddieBot
 EdoBot
 EdwardsBot
+Eejit43Bot
 Egmontbot
 EgressBot
 Eivindbot
 EjsBot
 El bot de la dieta
+ElMeBot
 EleferenBot
 Elissonbot
-ElMeBot
+EmausBot
+Emijrpbot
 EmxBot
-ENewsBot
+EnterpriseyBot
 EnzaiBot
+EranBot
+ErfgoedBot
 Erik9bot
 Erwin85Bot
 Escarbot
 Eskimbot
+EsquivalienceBot
+EssjayBot
 EssjayBot_III
 EssjayBot_IV
-EssjayBot
 Estirabot
 Eubot
 ExpertIdeasBot
 Eybot~enwiki
 EyeEightDestroyerBot
+FACBot
+FANSTARbot
 FA_Template_Protection_Bot
+FPBot
+FRadical Bot
 FacebookBot
+FairuseBot
 Fajrbot
 FaleBot
-FANSTARbot
+FastilyBot
 Fbot
 FeedBot
 Femto Bot
@@ -581,26 +373,38 @@ Fetofsbot2
 Fettgesicht
 Ficbot
 FileBot
+Filedelinkerbot
+FireflyBot
+FireflyBot II
 FiriBot
+FlBot
 FlaBot
 FlagBot
-FlBot
+Flow talk page manager
+Fluxbot
 FoxBot
-FPBot
-FRadical Bot
+FrescoBot
 Fritzbot
 FritzpollBot
+FrostlySnowman
 Full-date unlinking bot
 Fz29bot
 GA bot
+GZ-Bot
+Gabrielchihonglee-Bot
+GalliumBot
+Galobot
+Ganeshbot
 GargoyleBot
 Gdrbot
 Geimas5Bot~enwiki
+GeneralBotability
 GeorgeMoneyBot
 GeorgeMoneyBot-status
 Gerakibot
 GhalyBot
 Giggabot
+GimmeBot
 Ginosbot
 GnawnBot
 Gnome (Bot)
@@ -608,42 +412,55 @@ GracenotesBot
 Grafikbot
 Grammarbot
 GrashoofdBot
+GreenC bot
 GrinBot~enwiki
 GrooveBot
 GrouchoBot
 Guanabot
-GurchBot_2
 GurchBot
-GZ-Bot
+GurchBot_2
 H2Bot
+H3llBot
 H92Bot
-HagermanBot
-Halibott
-HarrivBOT
-HasharBot~enwiki
-HasteurBot
-HBC AIV helperbot 8
 HBC AIV helperbot
+HBC AIV helperbot 8
+HBC AIV helperbot11
+HBC AIV helperbot14
 HBC AIV helperbot2
 HBC AIV helperbot3
 HBC AIV helperbot4
+HBC AIV helperbot5
 HBC AIV helperbot7
 HBC Archive Indexerbot
 HBC NameWatcherBot
-HBC_archive_builderbot
 HBC_RenameClerkBot
+HBC_archive_builderbot
+HMBot~enwiki
+HRoestBot
+HagermanBot
+HaleBot
+Halibott
+Harej bot
+HarrivBOT
+HasharBot~enwiki
+HasteurBot
+Hazard-Bot
 Heikobot
 Helpful Pixie Bot
 HerculeBot
 HersfoldArbClerkBot
 HiW-Bot
-HMBot~enwiki
+Hmainsbot1
 Homobot
 HooptyBot
+HostBot
 HotArticlesBot
-HRoestBot
+HtonlBot
 HujiBot
 Hxhbot
+IPLRecordsUpdateBot
+IPTaggerBot
+IW-Bot-as~enwiki
 IcalaniseBot
 IdeoBot
 Idioma-bot
@@ -651,59 +468,90 @@ IluvatarBot
 Image Screening Bot
 Image-req-proj-bot
 ImageBacklogBot
+ImageRemovalBot
 ImageTagBot
+ImageTaggingBot
+InceptionBot
+IndentBot
+InfoboxBot
+IngenuityBot
 Innocent_iwbot
+InternetArchiveBot
 Invadibot
-IPLRecordsUpdateBot
-IPTaggerBot
 IsraBot
-IW-Bot-as~enwiki
+Italic title bot
+IznoBot
+J Milburn Bot
+JAnDbot
+JBradley Bot
+JCW-CleanerBot
+JCbot
+JJBot
+JJMC89 bot
+JJMC89 bot II
+JJMC89 bot III
+JL-Bot
+JMuniBot
+JVbot
+JYBot
+JaGaBot
 JabbaTheBot
 JackieBot
-JaGaBot
+JamietwBot
 Janna_Isabot
+JarBot
 JatBot
 Jayden54Bot
 JdforresterBot
+JeffGBot
 JerryBot
+JhealdBot
 JhsBot
 Jitse's bot
-JJBot
 Jmax-bot
-JMuniBot
+Joe's Null Bot
+Joe's Olympic Bot
 JoeBot
 Jogersbot
-John Bot III
 John Bot
+John Bot III
+John of Reading Bot
 John_Bot_II
+Josvebot
 Jotterbot
 Jumbuck
 Justincheng12345-bot
-JYBot
+KLBot2
+KMLbot
 KadaneBot
 KaiserbBot
 Kakashi Bot
 Kal-El-Bot
+KaldariBot
 KamikazeBot
 KarlsenBot
 Kasirbot
+KasparBot
 Kaspobot
 Kbdankbot
-KevinalewisBot
 KevinBot
+KevinalewisBot
 Kgsbot
 KharBot
 KiloBot
 Kingbotk
+KingpinBot
+KiranBOT
 Kisbesbot
 KittyBot
 Kl4m-AWB
-KLBot2
 KnightRider~enwiki
 KocjoBot~enwiki
 KolBot
+KolbertBot
 KonstableBot
 Kotbot
+Krdbot
 KrimpBot
 KslotteBot
 KuduBot
@@ -713,11 +561,14 @@ Kurando-san
 Kwjbot
 Kyle the bot
 KyluBot
+LDBot
+LSG1-Bot
 LaaknorBot
+LaraBot
 LatitudeBot
 LawBot
-LDBot
 Le_Pied-bot~enwiki
+Legobot
 Legobot II
 Legobot III
 LemmeyBOT
@@ -725,90 +576,132 @@ Lightbot
 Ligulembot
 LinkBot
 LinkFA-Bot
-ListasBot
 ListGenBot
+ListManBot
+ListasBot
+ListeriaBot
+LivingBot
 Lockalbot
 Locobot
+Lonjers french region rename bot
 LordAnubisBOT
 LostBot
 Louperibot
-LSG1-Bot
+Lowercase sigmabot
+Lowercase sigmabot II
+Lowercase sigmabot III
 Lt-wiki-bot
+Luasóg bot
+Lucasbfrbot
 Lucia Bot
 LucienBOT
 Luckas-bot
+Luke081515Bot
 LyricsBot
+M-Bot
 M7bot
+MBisanzBot
+MBot~enwiki
+MCBot
+MDanielsBot
+MGA73bot
+MMABot
+MPUploadBot
+MSBOT
+MTSbot~enwiki
 Madhubot
 MadmanBot
 Maelgwnbot
+Magic links bot
 MagnusA.Bot
 MahdiBot
+Maintenance script
 Mairibot
+MajavahBot
+Makecat-bot
 Maksim-bot
 MalafayaBot
 MalarzBOT
+MalnadachBot
+MandelBot
+Manishbot
 Manubot
 Margosbot~enwiki
 MarshBot
+Martin's bot
 MartinBot
 MartinBotII
 MartinBotIII
 MartinBotIV
-Martin's bot
 MastersBot
 MastiBot
+Mathbot
 MauchoBot
 MauritsBot
-M-Bot
-MBot~enwiki
-MCBot
 McM.bot
+Mdann52 IMG bot
+Mdann52 bot
 MedcabBot
+MediaWiki default
+MediaWiki message delivery
 MediationBot
 MediationBot1
 MelonBot
 MelsaranAWB
 MenasimBot
+MenoBot
+MenoBot II
 Mentibot
 MercuryBot
+Merge bot
 MerlIwBot
 MerlLinkBot
 MessageDeliveryBot
 MessengerBot~enwiki
 MetaplasticityBot
 MetsBot
-MGA73bot
 Mgmbot
 MichaelBillingtonBot
 MichaelkourlasBot
+MifterBot
+MifterBot I
 Mihas-bot
+MilHistBot
 Milk's Favorite Bot II
 Milk's_Favorite_Bot
 Minsbot
+MinusBot
+MiszaBot
 MiszaBot I
 MiszaBot II
 MiszaBot III
-MiszaBot
 Mjbmrbot
-MMABot
 Mobius_Bot
 MondalorBot
+Monkbot
 MonoBot
+MoohanBOT
 MoriBot~enwiki
 MotinBot
 Movses-bot
-MPUploadBot
 Mr.Z-bot
 MrVanBot
-MSBOT
-MTSbot~enwiki
+MuZebot
+Muhbot
 Mulder416sBot
+Muninnbot
 Muro Bot
+MusikBot
+MusikBot II
 MystBot
-Nallimbot
-Naudefjbot~enwiki
+Mz7 (bot)
 N-Bot
+NTBot~enwiki
+NVS(bot)
+NW557Bot
+Nallimbot
+NationalRegisterBot
+Naudefjbot~enwiki
 NedBot
 NekoBot
 NekoDaemon
@@ -816,6 +709,8 @@ NeraBot
 NetBot
 NeuRobot
 Newsletterbot
+NihiltresBot
+NihlusBOT
 NilfaBot
 Nixbot
 NjardarBot
@@ -830,16 +725,20 @@ Nono le petit robot~enwiki
 NoomBot
 NotificationBot
 NotifyBot
+NovemBot
 NrhpBot
-NTBot~enwiki
+NukeBot
+Numberguy6Bot
 Numbo3-bot
-NVS(bot)
-NW557Bot
+OAbot
+OKBot
 O_bot
 Obersachsebot
 Ocobot
-OKBot
+OgreBot
+Ohms Law Bot
 OldMedcabBot
+OmniBot
 One bot
 OpenlibraryBot
 Ops Monitor (WMF)
@@ -848,42 +747,60 @@ OrophinBot
 OrphanBot
 Orphaned image deletion bot
 Orphaned_talkpage_deletion_bot
+OutreachDashboardBot
 OverlordQBot
+PALZ9000
+PC78-bot
+PCbot
+PDBbot
+PDFbot
+PNG crusade bot
 Pageview bot
 PaievBot
-PALZ9000
 PascalBot
 Pathosbot
 Pattonbot
 PbBot
-PC78-bot
-PCbot
-PDBbot
+PearBOT
+PearBOT II
 Pearle
 Peelbot
 PeerReviewBot
 Pegasusbot
 People-n-photo-bot
 People-photo-bot
+Petan-Bot
 Peti610botH
 Pfft_Bot~enwiki
 Phe-bot
+Philosopher-Bot
+PhotoCatBot
+Pi bot
 PipepBot
 PixelBot
+PkbwcgsBot
 PlangeBot
 PlankBot
 Planktonbot
 Plasticbot
-PNG crusade bot
 PoccilScript
 PockBot
 Pokbot
 PolarBot
 Polbot
+Portal box bot
 Portal_namespace_initialisation_script
 PorthosBot
+PotatoBot
+PowerBOT
+PrimeBOT
+ProcBot
+ProcBot II
+ProcseeBot
 Project Messenger Bot
+Protection Helper Bot
 ProtectionTaggingBot
+ProteinBoxBot
 PseudoBot
 PsychAWB
 Ptbotgourou
@@ -891,35 +808,49 @@ Purbo_T
 PxBot
 QEDKbot
 QOTDBot
+Qbugbot
 QualiaBot
+Qwerfjkl (bot)
 R._Hillgentleman
+RBSpamAnalyzerBot
+RBot~enwiki
+RFC bot
+RFC posting script
+RFRBot
+RM bot
+RMCD bot
+RSElectionBot
 R_Delivery_Bot
 Rabbot
+RagesossBot
 Ralbot
+Ramaksoud2000Bot
 Rambot
 Rameshngbot
 RaptureBot
 Razibot
-RBot~enwiki
-RBSpamAnalyzerBot
 RebelRobot
 RedBot
 Redirect fixer
 RedirectCleanupBot
 Redrocketbot
+Reedy Bot
 RefDeskBot
 ReferenceBot
 Rei-bot
 ReigneBOT
+Reports bot
+RetractionBot
 Rezabot
 Rfambot
-RFC bot
-RFC posting script
-RFRBot
 RibotBOT
 Riccardobot
+RichBot
+Rick Bot
+RileyBot
 Ripchip Bot
-RM bot
+RjwilmsiBot
+Rlink2 Bot
 Rob110178bot
 Robbot
 Robert SkyBot
@@ -928,18 +859,40 @@ RoboMaxCyberSem
 RoboServien
 RobotE
 RobotG
-Robotic_Garden
 RobotJcb
+Robotic_Garden
 Roboto de Ajvol
-RonaldBot
+RockfangBot
 RonBot
+RonaldBot
 RoryBot
 RotlinkBot
+RottenBot
 Rschen7754bot
-RSElectionBot
+RscprinterBot
 Rtz-bot
 Rubinbot
+RussBot
 Ryan Vesey Bot
+SD5bot
+SDPatrolBot
+SDPatrolBot II
+SDZeroBot
+SEWilcoBot
+SMS_Bot
+SPCUClerkbot
+SPPatrolBot
+SQLBot
+SQLBot-Hello
+SSTbot
+ST47Bot
+STBot
+STBotD
+STBotI
+STTWbot
+SVGBot
+SVnaGBot1
+SXT-404Bot
 Sagabot
 Sahimrobot
 SamatBot
@@ -950,34 +903,45 @@ SandgemBot
 SantoshBot
 SashatoBot
 SassoBot
+SatyrBot
+ScannerBot
 Scepbot
+Scsbot
+SdkbBot
 SebrevBOT
 Seedbot
 SelectionBot
 SelketBot
 Selmobot
+Seppi333Bot
 Sethbot
-SEWilcoBot
+SeveroBot
 Sgeo-BOT
 Shadowbot3
 SharafBot
 SharedIPArchiveBot
 SheepBot
+SheepLinterBot
 ShepBot
+ShortDescBot
 SieBot
 Signpost Book Bot
 SilvonenBot
 Simplebot
+SimplexityBot
+SineBot
 SkiersBot
 Skumarlabot
 SlakrBot
 Slobot
 SmackBot
 Smallbot
-SMS_Bot
 Snaevar-bot
 SnakeBot
 Snobot
+Snotbot
+Snowbot
+SoxBot
 SoxBot II
 SoxBot III
 SoxBot IV
@@ -986,153 +950,201 @@ SoxBot VI
 SoxBot VII
 SoxBot_VIII
 SoxBot_X
-SoxBot
 SpBot
-SPCUClerkbot
+SpaceFactsBot
 SpebiBot
 SpeedyBot
 SpellCheckerBot
 SpellingBot
 SpillingBot
+SporkBot
+SportsStatsBot
 SprinterBot
-SQLBot
-SQLBot-Hello
 Staeckerbot
 StatisticianBot
 StatsBot
 StatusBot
-STBot
-STBotD
-STBotI
 SteenthIWbot
+Stefan2bot
 StefanBot
+SteveBot
 StigBot
 StormBot
-STTWbot
+StradBot
 StubListBot
+Stwalkerbot
+SuggestBot
 Sumibot
 SunCreatorBot
 SundarBot
 SusBot~enwiki
 Svenbot
-SVGBot
-SVnaGBot1
+SvickBOT
 SwiftBot
 Swimmingbot-awb
-SXT-404Bot
 Synthebot
 Syrcatbot
 T13bot
+TAP Bot
+TARBOT
+TFA Protector Bot
+TNTBot
+TPBot
+TPO-bot
+TTObot
+TWLBot
+TXiKiBoT
 TaBOT-zerem
 TaeBot
 Tangobot
 Tanhabot
-TARBOT
 Tawbot~enwiki
 Tawkerbot
 Tawkerbot2
 Tawkerbot4
+Taxobot
 Taxobot (usurped)
 Taxobot 1
 Taxobot 2
 Taxobot 3
 Taxobot 6
 Taxobot 7
-Taxobot
 TechBot
+TedderBot
 TestEditBot
+Texvc2LaTeXBot
+Thadius856AWB
+The Anomebot2
 The Anonybot
+The Sky Bot
+The wubbot
+TheCowBot
+TheJoshBot
+TheMagikBOT
+ThePhantomBot
+TheSandBot
 The_Anomebot
 The_Auto-categorizing_Robot
+Thehelpfulbot
 Theo's Little Bot
-TheJoshBot
-ThePhantomBot
 Thijs!bot
 Tigraan-testbot
-TinucherianBot_II
 TinucherianBot
+TinucherianBot_II
 TjBot
 TobeBot
 ToePeu.bot
+TohaomgBot
+TokenzeroBot
+TolBot
+Tom's Tagging Bot
+Tom.Bot
 Topjabot~enwiki
 TorNodeBot
 TottyBot
+TowBot
 Town-bot
-TPO-bot
 Tsca.bot
 TuHan-Bot
 Tuonela
 TuvicBot
-TXiKiBoT
+TweetCiteBot
 TypoBot
+UTRSBot
+UcuchaBot
 Ugur Basak Bot~enwiki
 UltraBot
 UnCatBot
 UncatTemplateBot
 Uncle G's 'bot
 Uncle G's major work 'bot
+UsuallyNonviolentBot
+VFD_Bot
+VIAFbot
+VP-bot
+VRTS Migration Bot
+VVVBot
+VWBot
 Vagobot
+VahurzpuBot
 VandalCountBot
+VeblenBot
 VedeBOT
 VeinorBot
 Ver-bot
-VFD_Bot
 Vina-iwbot~enwiki
 Vini_17bot5
 ViskonBot
 VixDaemonBot
+VoABot
 VoABot II
 VolkovBot
 VoxelBot
-VP-bot
 VsBot
-VVVBot
+VulpesBot
+WASDbot
+WMUKBot
+WODUPbot
+WOSlinkerBot
+WP 1.0 bot
+WPArkansas Bot
+WaldirBot
 WalkingSoulBot
 WarddrBOT
-WASDbot
 WatchlistBot
+WebCiteBOT
 WeggeBot
-Werdnabot_(irc)
+WegweiserBot
+WelcomerBot
 Werdnabot
+Werdnabot_(irc)
 Wherebot
 Whobot
 Wiki Feed Bot
 WikiBotas
+WikiCleanerBot
 WikiDreamer Bot
+WikiProject Notification Service
+WikiStatsBOT
 Wikinews Importer Bot
 Wikipedia Signpost
-WikiStatsBOT
 WikitanvirBot
+WildBot
 WilhelmBot
+William Avery Bot
 WillieBot
 WinBot
-WMUKBot
-WODUPbot
 WolfBot
 WolterBot
-WPArkansas Bot
+WoodwardBot
 Wpp research bot
 WuBot
+WugBot
+WxBot
 Wybot
-XeBot
-Xenobot Mk V
-Xenobot
 XLerateBot
 XLinkBot
+XZeroBot
+XeBot
+Xenobot
+Xenobot Mk V
+Xphoisbot
 Xqbot
 XyBot
-XZeroBot
+YFdyh-bot
+Yapperbot
 YekratsBot~enwiki
 Yet_Another_Redirect_Cleanup_Bot
-YFdyh-bot
+YiFeiBot
+Yobot
 YonaBot
 Yonidebot
 YpnBot
 YurikBot
 Z-BOT
+ZackBot
 Zbot370
 ZedlikBot
-ZéroBot
 ZhBot
 Zorglbot
 Zorrobot
@@ -1140,6 +1152,7 @@ ZscoutBot
 ZsinjBot
 Zwobot
 Zxabot
+ZéroBot
+^demonBot2
 Δbot
 タチコマ robot
-Conversion script
